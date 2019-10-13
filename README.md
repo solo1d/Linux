@@ -23,3 +23,53 @@ $sync     将内存数据写会到硬盘命令
     关机脚本:  sudo sync && sudo sync && sudo shutdown -h now
 ```
 
+## 查看当前 Linux所支持的文件系统
+
+```bash
+ $ sudo ls -l /lib/modules/$(uname -r)/kernel/fs
+ 
+ #系统目前已载入到内存中支持的文件系统则有:
+$cat /proc/filesystems
+```
+
+## 挂载点的设备文件名
+
+```bash
+$df -T /boot         #后面的/boot  可以换成挂载点(目录)
+```
+
+## 挂载硬盘命令
+
+```bash
+$mount  
+```
+
+## 获得CPU核心数量
+
+```bash
+$grep 'processor' /proc/cpuinfo
+ processor : 0
+ processor : 1
+# 这是表示有两颗 cpu核心的意思, (一颗CPU,两颗CPU核心  / 或者一颗CPU,一颗核心<超线程>)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

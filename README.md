@@ -1,3 +1,7 @@
+---
+description: CentOS7.7
+---
+
 # Linux
 
 ## 主要是 Linux 系统结构和命令.
@@ -41,7 +45,8 @@ $df -T /boot         #后面的/boot  可以换成挂载点(目录)
 ## 挂载硬盘命令
 
 ```bash
-$mount  
+$mount  -t  文件系统  UUID=''    挂载点目录        #也可以不需要-t和文件系统
+$blkid     #会列出所有设备的 UUID和文件系统类型
 ```
 
 ## 获得CPU核心数量

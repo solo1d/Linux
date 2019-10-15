@@ -515,12 +515,18 @@ $fsck.ext4   -p -f /dev/sda5
   * **但一目录不应该重复挂载多个文件系统;**
   * **要作为挂载点的目录, 理论上应该是空目录才是;**
     * **`如果挂载点目录并不是空的,那么挂载了文件系统 之后,原目录下的东西就会暂时消失. 卸载了文件系统之后,原目录下的东西就会出现了.`**
+* **`/etc/filesystems`**  :**系统指定的测试挂载文件系统类型的优先顺序;**
+* **`/proc/filesystems:Linux`**   **系统已经载入的文件系统类型**
+* **`/lib/modules/$(uname -r)/kernel/fs/`**    **系统支持的文件系统的驱动程序都在这目录中.**
+* **使用UUID来识别文件系统, 会比设备名称与标头还要更可靠.\( 因为UUID是独一无二的\)**
+
+### **挂载 \(mount\)**
 
 ```bash
 $mount  -a
 $mount  -l
 $mount  -t  文件系统  LABEL=''   挂载点目录
-$mount  -t  文件系统  UUID=''    挂载点目录    #一般使用这种
+$mount  -t  文件系统  UUID=''    挂载点目录    #一般使用这种,uuid比设备名可靠
 $mount  -t  文件系统  设备文件名  挂载点目录
 选项和参数:
 -a   :依照配置文件 /etc/fstab 的数据将所有为挂载的磁盘都挂载上来
@@ -532,8 +538,8 @@ $mount  -t  文件系统  设备文件名  挂载点目录
 -o :后面可以接一些挂载时额外加上的参数!比方说帐号、密码、读写权限等:
      async, sync   :此文件系统是否使用同步写入 (sync) 或非同步 (async) 的内存机制，
                      请参考[文件系统运行方式] , 默认值是 async 
-     atime,noatime  :是否修订文件的读取时间(atime)。为了性能，某些时刻可使用 
-     noatimero, rw  :挂载文件系统成为只读(ro) 或可读写(rw)
+     atime,noatime  :是否修订文件的读取时间(atime)。为了性能，某些时刻可使用noatime
+     ro, rw   :挂载文件系统成为只读(ro) 或可读写(rw)
      auto, noauto   :允许此 filesystem 被以 mount -a 自动挂载(auto)
      dev, nodev     :是否允许此 filesystem 上，可创建设备文件? dev 为可允许
      suid, nosuid   :是否允许此 filesystem 含有 suid/sgid 的文件格式?
@@ -542,26 +548,191 @@ $mount  -t  文件系统  设备文件名  挂载点目录
                     一般来说，mount 仅有 root 可以进行，但下达 user 参数，则可让一般 user 也能够对此 partition 进行 mount 。
      defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
      remount   : 重新挂载，这在系统出错，或重新更新参数时，很有用!
- 
- 
- 
 ```
 
- 
+#### 挂载 xfs 和 ext4 硬盘
 
+{% hint style="info" %}
+挂载/dev/sda4 \(xfs\) 到 /data/xfs 目录下
 
+* **`$blkid /dev/sda4`**       \#获得uuid.
+  * 输出: /dev/sda4: **UUID="cc8a2665-3fef-43b2-be41-d2f11c2dee11" TYPE="xfs"** PARTLABEL="Linux filesystem" PARTUUID="fbde563e-1d3e-49f3-b1d2-ac002096dbbe"
+* **`$mkdir -p /data/xfs ; mount UUID='cc8a2665-3fef-43b2-be41-d2f11c2dee11' /data/xfs`**
+* **`$df usb -h #用df 查看是否正确`**
+{% endhint %}
 
+#### 挂载光盘
 
+{% hint style="info" %}
+挂载光盘 \( 一般光盘是 sr0 \)
 
+* **`$blkid /dev/sr0`**      \#我这个是第一张光盘, 如果不知道是第几张,可以不带后面这个参数来寻找
+  * 输出 :/dev/sr0: **UUID="2019-09-11-18-50-31-00" LABEL="CentOS 7 x86\_64"** TYPE="iso9660" PTTYPE="dos"
+* **`$mkdir -p /data/cdrom ; mount /dev/sr0 /data/cdrom`**
+  *  **\#写UUID也是可以的**
+* **`$df usb -h #用df 查看是否正确`**
+{% endhint %}
 
+#### 挂载USB\(U盘\)
 
+{% hint style="info" %}
+挂载 U盘
 
+* **`$blkid`**    \#usb 有可能是/dev/sdb1 还有可能是其他的. 我这里就默认是/dev/sdb2了
+  * 输出: ``**`/dev/sdb2: LABEL="KK" UUID="B23A-12FC" TYPE="vfat"`** \#LABEL是标签 PARTUUID="649ff936-6271-44ea-8e2f-cddad96c6b7f"
+* **`$mkdir -p /data/usb ; mount UUID='B23A-12FC' -o codepage=950,iocharset=utf8 /data/usb`**
+  * **-o 后面的 codepage=950表示中文语系,iocharset=utf8表示万国码, 用逗号链接.**
+* **`$df usb -h #用df 查看是否正确.`**
+  * 文件系统 容量 已用 可用 已用% 挂载点 
+  * /dev/sdb2 58G 30M 58G 1% /data/usb
+{% endhint %}
 
+#### 重新挂载根目录与挂载不特定目录
 
+{% hint style="info" %}
+* **重新挂载根目录 `(只有在单人维护模式下, 并且根目录是只读的,才会使用重新挂载根目录的命令)`**
+  * **`$mount  -n -o  remount,rw,auto  /`**
+* **将一个目录挂载到另一个目录  `(一般是某些程序无法使用软连接或硬链接,才会有的这种折中办法)`**
+  * **`$mkdir -p /data/var ; mount --bind /var  /data/var`**
+    * **`两个内容完全一样,就当成硬链接看就好了`**
+    * **`详细信息查询:   $mount | grep var`**
+{% endhint %}
 
+### 卸载 \(umount\)
 
+**如果卸载失败,则说明你正在使用这个卸载设备,  或者网络不通畅\(网络文件系统\).**
 
+```bash
+$umount   选项  设备文件名或挂载点
+选项与参数:
+-f :强制卸载!可用在类似网络文件系统 (NFS) 无法读取到的情况下;
+-l :立刻卸载文件系统，比 -f 还强!
+-n :不更新 /etc/mtab 情况下卸载。
 
+#写在完成后,可以使用 $df 或 $mount 看看是否还存在目录树中.
+范例: 卸载上面所有已经挂载的东西
+$umount  /dev/sda4     #用块设备文件名来卸载
+$umount  /data/ext4    #用挂载点来卸载
+$umount  /data/cdrom    #卸载光盘
+$umount  /data/usb
+$umount  /data/var      #卸载一个挂载的目录,这里必须使用 挂载点.
+```
+
+## 磁盘/文件 系统参数修订
+
+```bash
+$mknod  设备文件名  参数  主要设备码  次要设备码
+参数:
+    b   :设置设备名称成为一个 周边存储设备文件(硬盘)
+    c   :设置设备名称成为一个 周边输入设备文件, 键盘鼠标等.
+    p   :设置设备名称成为一个 FIFO文件(管道文件)
+主要设备码 和 次要设备码 :  依照 $lsblk 和 $ll /dev/sda*   来进行设置,  但不要胡乱设置.
+一般的设备码为: 
+    磁盘名      主要设备码(Major)    次要设备码(Minor)
+   /dev/sda        8                0-15
+   /dev/sdb        8                16-31
+   /dev/loop0      7                0
+   /dev/loop1      7                1
+   
+范例: 上述介绍可以  /dev/sda10 的设备码是 8,10    创建并查阅这个设备,(这个设备目前还不存在)
+$mknod   /dev/sda10 b  8 10 
+$ll  /dev/sda10 
+输出: brw-r--r--. 1 root root 8, 10 10月 14 11:00 /dev/sda10
+
+#如果是无用的, 不要忘记删除它,  $rm /dev/sda10
+    
+```
+
+### xfs\_admin  修改XFS 文件系统的 UUID 与 LABEL name  \(就是标签重命名\)
+
+**如果你当初格式化的时候忘记加上标头名称，后来想要再次加入时，不需要重复格式化!直接使用这个 xfs\_admin 即可。 这个指令直接拿来处理 LABEL name 以及 UUID 即可啰!**
+
+```bash
+# 修改前,需要先进行卸载. 修改的文件系统必须是 xfs 格式.
+
+$xfs_admin   选项  参数  设备文件名
+选项和参数:
+-l    :列出这个设备的 label name
+-u    :列车这个设备的  UUID
+-L    :设置这个设备的 Label name
+-U    :设置这个设备的 UUID
+
+范例:  设置 /dev/sda4 的 label name (标签重命名) 为 vbird_xfs, 并测试挂载.
+$umount  /dev/sda4             #修改前需要先卸载.
+$xfs_admin  -L vbird_xfs  /dev/sda4 
+$mount  LABEL=vbird_xfs  /data/xfs            #可以通过label 进行挂载
+
+范例:  修改  /dev/sda4 的 UUID
+$umount  /dev/sda4             #修改前需要先卸载.
+$uuidgen                         #这个会得到一个新的随机UUID. 并且不会重复
+$xfs_admin -U $(uuidgen) /dev/sda4        #也可以这么写,来直接得到UUID
+
+```
+
+### tune2fs  修改 ext4 的 label name 与 UUID
+
+```bash
+# 修改前,需要先进行卸载. 修改的文件系统必须是 ext4 格式.
+
+$tune2fs  选项  参数   设备文件名
+选项和参数:
+-l   :类似 dumpe2fs  -h  的功能. 将 superblock 内的数据读出来
+-L   :修改 LABEL  name
+-U   :修改 UUID
+
+范例: 列出 /dev/sda5 的  label name 之后, 将它改成 vbird_ext4
+$dumpe2fs -h /dev/sda5 | grep  name
+输出:dumpe2fs 1.42.9 (28-Dec-2013)
+     Filesystem volume name:   <none>
+$tune2fs  -L vbird_ext4  /dev/sda5          #修改
+$tune2fs  -l  /dev/sda5  | grep name       #和dumpe2fs -h  效果相同
+$mount  LABEL=vbird_ext4  /data/ext4       #挂载
+```
+
+## 设置开机挂载
+
+* **开机挂载的限制**
+  * 根目录 / 是必须挂载的,而且一定要先于其它 mount point 被挂载进来
+  * 其它 mount point 必须为已创建的目录,可任意指定,但一定要遵守必须的系统目录架构 原则 \(FHS\)
+  * 所有 mount point 在同一时间之内,只能挂载一次。
+  * 所有 partition 在同一时间之内,只能挂载一次。 如若进行卸载,您必须先将工作目录移到 mount point\(及其子目录\) 之外
+
+**开机挂载的配置文件  `/etc/fstab`**
+
+{% code-tabs %}
+{% code-tabs-item title="fstab" %}
+```bash
+#设备 或 UUID 等          挂载点        文件系统   文件系统参数                dump  fack
+/dev/mapper/centos-root  /              xfs     defaults                     0 0
+UUID=670c24ae-e100-445   /boot          xfs     defaults                     0 0
+UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
+/dev/mapper/centos-home  /home          xfs     defaults                     0 0
+/dev/mapper/centos-swap  swap           swap    defaults                     0 0
+```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+* 配置文件 **`/etc/fstab`**详解:
+  * **第一栏:  磁盘设备文件名  /UUID/LABEL name**
+    * 这个字段有三个项目,  设备文件名\(/dev/sda3\), UUID, LABEL  等.
+    * **`可以使用 $blkid 或 xfs_admin 来查询 UUID.`**
+  * **第二栏: 挂载点 \(就是目录\)**
+  * **第三栏: 磁盘分区的文件系统**
+    * 包括xfs, ext4, vfat, reiserfs , nfs 等
+  * **第四栏: 文件系统参数** 
+    *  具体的设置在 **`$mount 命令的 -o`** 选项中, 中间用逗号区分就行**.**
+    * 默认给  **`defaults`** 即可
+  * **第五栏: 能否被 dump 备份指令作用.** 
+    * 目前没什么用, 直接给0 忽略就好.
+  * **第六栏: 是否以 fsck 检验扇区.**
+    * xfs文件系统无法使用这个选项. 直接给0就好
+* **当修改完配置文件后,尽量使用  `$mount -a`  来进行一次自动挂载. 然后查看是否挂载正确\(`$blkid`\).才可以使用这个配置文件.**
+
+**当配置完成后, 开机就可以实现自动挂载了, 也可以进行 $mount -a 进行自动挂载\(配置文件\).**
+
+**如果配置文件修改出现了错误, 并且无法进入系统, 那么可以进入单人模式 , 使用命令 `$mount -n -o remount,rw /` 来进行更目录的可读可写挂载,然后再将错误的配置文件修改正确.**
+
+## 特殊文件 loop 挂载 \(镜像文件不烧录就挂载使用\)
 
 
 

@@ -734,7 +734,24 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
 
 ## 特殊文件 loop 挂载 \(镜像文件不烧录就挂载使用\)
 
+```bash
+$mount   -o  loop  需要挂载的文件    挂载点
 
+#可以挂载 DVD 和光盘设备, 并且这必须是个文件,而不是一个设备.
+# 在loop 这个回环设备中, 尽量使用 文件名来写入 /dev/fastb 来进行开机自动挂载.
+范例:创建一个大文件,并格式化,然后挂载到/data/file 目录下, 并加入到 /etc/fstab 开启自动挂载中.
+$cd /srv  ; touch loopdev         #首先在/srv 下创建一个空文件.
+$dd  if=/dev/zero  of=/srv/loopdev  bs=1M count=512    #大文件,初始化为全0,大小为512MB
+$mkfs.xfs   -f  /srv/loopdev      #使用强制格式化  来格式这个大文件
+$blkid /srv/loopdev               #查看一下目前是什么类型,是否初始化成功,记住文件系统.
+    #    输出:/srv/loopdev: UUID="53cc91ca-eef7-48eb-9ad0-b80dc74346a2" TYPE="xfs"
+$mkdir /data/file                 #创建一个挂载点 ,准备挂载 loopdev 文件
+$mount  -o loop /srv/loopdev  /data/file          #尝试挂载, 确保挂载成功
+$df -h /data/file                 #如果挂载成功,则会输出它的挂载点是 /data/file
+    #    输出: /dev/loop0      509M   26M  483M    6% /data/file
+    #确认挂载成功, 将其写入到配置文件/etc/fsatb 中,让其开机启动.
+$sudo echo '/srv/loopdev /data/file  xfs   defaults,loop 0 0' >> /etc/fstab
+```
 
 
 

@@ -244,7 +244,7 @@ Number  Start   End     Size    File system  Name                  Flags
  3      1127MB  33.3GB  32.2GB                                     lvm
 ```
 
-## 磁盘分区  :  gdisk  / fdisk
+## 磁盘分区  :  gdisk  / fdisk  /parted
 
 #### MBR 分区需要使用  fdisk 进行分区,   GPT 分区需要使用  gdisk 进行分区.\(否则会失败\)
 
@@ -348,6 +348,84 @@ $partprobe   -s      #直接执行该命令更新核心分区列表
 
 ```text
 适用方法和 gdisk 相同,  只不过 ? 帮助,变成了 m .
+```
+
+### 利用 GUN 的 parted 进行分区行为
+
+```bash
+parted 不区分 MSR 和 GPT  分区, 并且可以直接通过参数直接进行分区,很适合脚本.
+$parted [设备] [指令 [参数]]  
+选项和参数
+  新增分区:  mkpart [ primary|logical|extended ] [ ext4|vfat|xfs ] 开始地址 结束地址
+  显示分区:  print   ,让分区都按照MB的格式进行显示  unit mb print
+  删除分区:  rm  分区
+
+范例1: 显示本机的分区表数据
+$parted  /dev/sda   unit mb print
+输出:
+Model: ATA CentOS Linux-0 S (scsi)
+Disk /dev/sda: 42950MB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt                #这里表示的是 GPT分区表
+Disk Flags: 
+
+Number  Start    End      Size     File system     Name                  Flags
+ 1      1.05MB   53.5MB   52.4MB   fat16           EFI System Partition  bios_grub
+ 2      53.5MB   1127MB   1074MB   xfs
+ 3      1127MB   33344MB  32216MB                                        lvm
+ 4      33344MB  34417MB  1074MB   xfs             Linux filesystem
+ 5      34417MB  35491MB  1074MB   ext4            Microsoft basic data
+ 6      35491MB  36028MB  537MB    linux-swap(v1)  Linux swap
+上面输出的解释:
+1. Number:这个就是分区的号码啦!举例来说，1号代表的是/dev/sda1的意思;
+2. Start:分区的起始位置在这颗磁盘的多少MB处?有趣吧!他以容量作为单位喔! 
+3. End:此分区的结束位置在这颗磁盘的多少MB处?
+4. Size:由上述两者的分析，得到这个分区有多少容量;
+5. Filesystem:分析可能的文件系统类型为何的意思!
+6. Name:就如同gdisk的SystemID之意。
+---------------------------------------------------------------------
+
+范例2: 将 /dev/sda  这个原本的 MBR 分区表变成 GPT 分区表, (危险)
+$parted  /dev/sda mklabel  gpt
+ Warning: The existing disk label on /dev/sda will be destroyed and all data on
+ this disk will be lost. Do you want to continue?
+ Yes/No? y
+ #执行完成之后, 后续的所有分区都会死光光.
+ ---------------------------------------------------------------------
+ 
+ 范例3:  创建一个约为 512MB 容量的分区
+$partprobe          #更新一下内核的核心分区表
+$parted  /dev/sda   unit mb print     #首先查看一下当前分区表的数据.得到最后一个分区的位置
+ 6      35491MB  36028MB  537MB    linux-swap(v1)  Linux swap
+      #也就是  36028MB 是结束位置
+$lsblk    /dev/sda6      #确定 sda6这个设备是真的存在
+ NAME MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+ sda6   8:6    0  512M  0 part [SWAP]   #真的存在
+
+$parted  /dev/sda   mkpart  primary  fat32  36028MB 36540MB
+#由于新的分区的起始点在前一个分区的后面，所以当然要先找出前面那个分区的 End 位置!
+#然后再请参考 mkpart 的指令功能，就能够处理好相关的动作!
+#上面创建的是一个主要分区.占用 521MB空间,格式是fat32 ,由于最后一个是sda6号,所以这个新的就是sda7
+ 
+$partprobe    #更新内核的核心分区列表
+$lsblk    /dev/sda7     #确认是否真正分区成功
+ NAME MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+ sda7   8:7    0  488M  0 part
+
+$mkfs  -t vfat /dev/sda7     #分区完成后 进行格式化.
+$blkid /dev/sda7      #查看是否格式化成功
+ /dev/sda7: SEC_TYPE="msdos" UUID="6B63-E9CE" TYPE="vfat" 
+ PARTLABEL="primary" PARTUUID="c936b4a7-8bcf-48fe-bd38-0a02f0544c94" 
+ #格式化成功了
+
+$echo ' UUID=6B63-E9CE  /data/win   vfat   defaults   0  0 ' >> /etc/fstab
+ #进行开机挂载
+
+$mkdir /data/win   #创建挂载点
+$mount  -a    #根据配置文件 进行挂载
+$df  /data/win  -h
+  文件系统        容量  已用  可用 已用% 挂载点
+/dev/sda7       488M     0  488M    0% /data/win
 ```
 
 ### 磁盘格式化\(创建文件系统\)
@@ -732,6 +810,8 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
 
 **如果配置文件修改出现了错误, 并且无法进入系统, 那么可以进入单人模式 , 使用命令 `$mount -n -o remount,rw /` 来进行更目录的可读可写挂载,然后再将错误的配置文件修改正确.**
 
+**使用  `$blkid` 命令来获得所有设备的UUID等信息.**
+
 ## 特殊文件 loop 挂载 \(镜像文件不烧录就挂载使用\)
 
 ```bash
@@ -750,30 +830,147 @@ $mount  -o loop /srv/loopdev  /data/file          #尝试挂载, 确保挂载成
 $df -h /data/file                 #如果挂载成功,则会输出它的挂载点是 /data/file
     #    输出: /dev/loop0      509M   26M  483M    6% /data/file
     #确认挂载成功, 将其写入到配置文件/etc/fsatb 中,让其开机启动.
-$sudo echo '/srv/loopdev /data/file  xfs   defaults,loop 0 0' >> /etc/fstab
+$sudo echo ' /srv/loopdev /data/file  xfs   defaults,loop 0 0' >> /etc/fstab
+$umount /data/file  ; df -h /data/file         #卸载,并查看是否卸载成功
+
+$mount  -a          #按照配置文件 /etc/fstab 来进行自动挂载 , 能挂载成功就代表配置文件没问题.
+$df -h /data/file   #检验挂载是否成功     
 ```
 
+## 内存交换空间 \(swap\) 创建
 
+### 使用实体分区创建 swap
 
+```bash
+1. 分区:先使用gdisk在你的磁盘中分区出一个分区给系统作为swap。
+    由于Linux的 gdisk 默认会将分区的 ID 设置为 Linux 的文件系统，
+    所以你可能还得要设置一下 system ID 就是了。
+2. 格式化:利用创建swap格式的“mkswap设备文件名”就能够格式化该分区成为swap格 式啰
+3. 使用:最后将该swap设备启动，方法为:“swapon设备文件名”。
+4. 观察:最终通过free与swapon-s这个指令来观察一下内存的用量吧!
 
+----------------------------------------------------------------------
+开始进行分区:
+$gdisk   /dev/sda
+Command (? for help): n
+ Partition number (6-128, default 6):
+ First sector (34-83886046, default = 69220352) or {+-}size{KMGTP}:
+ Last sector (69220352-83886046, default = 83886046) or {+-}size{KMGTP}: +512M
+  Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): 8200
+  Changed type of partition to 'Linux swap'
+Command (? for help): p
+ Number Start (sector) End (sector) Size Code Name
+ 6 69220352 70268927 512.0 MiB 8200 Linux swap # 重点就是产生这东西!
+Command (? for help): w
+Do you want to proceed? (Y/N): y
 
+$partprobe   #更新核心分区列表
+$lsblk       #列出系统的所有磁盘和分区列表
+ NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+ sda 252:0 040G0disk
+.....(中间省略).....
+ `-sda6 252:6 0 512M 0 part # 确定这里是存在的才行!
+ 
+----------------------------------------------------------------------
+开始创建 swap 格式
+$mkswap /dev/sda6       #格式化 /dev/sda6成为 swap格式
+ Setting up swapspace version 1, size = 524284 KiB
+ no label, UUID=6b17e4ab-9bf9-43d6-88a0-73ab47855f9d
+ 
+$blkid  /dev/sda6    #列出这个分区的信息
+  /dev/sda6: UUID="6b17e4ab-9bf9-43d6-88a0-73ab47855f9d" TYPE="swap"
+# 确定格式化成功!且使用 blkid 确实可以抓到这个设备了喔!
 
+----------------------------------------------------------------------
+载入和观察
+$free  -h      #载入前进行观察 swap 内存有多少.
+               total        used        free      shared    buff/cache   available
+Mem:           1.1G        409M        234M         11M        492M        560M
+Swap:          1.0G          0B        1.0G
+#原本的 swap 是1G.  现在开始准备挂载
 
+$swapon  /dev/sda6     #挂载 dev/sda6 设备为内存交换空间 swap
+$free -h               #再次进行查看, 确定是否挂载成功
+              total        used        free      shared  buff/cache   available
+Mem:           1.1G        409M        234M         11M        492M        560M
+Swap:          1.5G          0B        1.5G
 
+$swapon -s              #列出目前使用的 swap 内存交换空间的 设备/文件 有哪些
+文件名				 类型	 大小	已用 权限
+/dev/sda6      	partition	524284	0	-2
+/dev/dm-1      	partition	1048572	0	-3
 
+#将 /dev/sda6 内存交换空间写到配置文件 /etc/fstab 进行开机自动挂载
+$echo ' UUID="6b17e4ab-9bf9-43d6-88a0-73ab47855f9d swap swap defaults 0 0' >> /etc/fstab
 
+----------------------------------------------------------------------
+卸载
+$swapoff   /dev/sda6         #后面可以是设备名, 也可以是文件名.
+```
 
+### 使用文件创建 swap
 
+```bash
+创建一个新的空文件
+$dd if=/dev/zero of=/tmp/swap bs=1M count=128    #这个文件是128MB,文件名 /tmp/swap
 
+----------------------------------------------------------------------
+进行格式化.将这个文件格式化为 swap的文件格式, 使用 mkswap 命令
+$mkswap     /tmp/swap
+    Setting up swapspace version 1, size = 131068 KiB
+    no label, UUID=4746c8ce-3f73-4f83-b883-33b12fa7337c
+# 这个指令下达时请“特别小心”，因为下错字符控制，将可能使您的文件系统挂掉!
 
+----------------------------------------------------------------------
+使用 swapon 来将 /tmp/swap 启动
+$swapon  /tmp/swap
+$fswapon -s
+文件名				类型		大小	  已用	权限
+/dev/sda6     	partition	524284	0	-3
+/dev/dm-1    	partition	1048572	0	-2
+/tmp/swap   	file	     131068	0	-4
 
+----------------------------------------------------------------------
+使用 swapoff  关掉 swap file  , 并设置自动启用, /etc/fstab
+$echo ' /tmp/swap  swap  swap  defaults 0 0' >> /etc/fstab   #必须写文件名
 
+$swapoff   /tmp/swap  /dev/sda6        # 将这两个进行关闭
+$swapon  -s
+文件名				类型		大小	已用	权限
+/dev/dm-1                              	partition	1048572	0	-2
+#已经完成卸载了
 
+----------------------------------------------------------------------
+使用 swapon -a 进行自动挂载,通过配置文件 /etc/fstab
+$swapon -a
+swapon  -s
+文件名				类型		大小	已用	权限
+/dev/sda6                              	partition	524284	0	-3
+/dev/dm-1                              	partition	1048572	0	-2
+/tmp/swap                              	file	131068	0	-4
+#既然挂载成功了, 则代表配置文件没问题.
+```
 
+## 小结
 
-
-
-
-
-
+* 一个可以被挂载的数据通常称为“文件系统, filesystem”而不是分区 \(partition\) 
+* 基本上 Linux 的传统文件系统为 Ext2 ，该文件系统内的信息主要有:
+  * superblock:记录此 filesystem 的整体信息，包括inode/block的总量、使用量、剩余量，以及文件系统的格式与相关信息等; 
+    * inode:记录文件的属性，一个文件占用一个inode，同时记录此文件的数据所在的block 号码;
+    * block:实际记录文件的内容，若文件太大时，会占用多个 block 。
+* Ext2 文件系统的数据存取为索引式文件系统\(indexed allocation\) 需要磁盘重组的原因就是文件写入的 block 太过于离散了，此时文件读取的性能将会变的 很差所致。 这个时候可以通过磁盘重组将同一个文件所属的 blocks 汇整在一起。
+* Ext2文件系统主要有:boot sector, superblock, inode bitmap, block bitmap, inode table, data block 等六大部分。
+  * data block 是用来放置文件内容数据地方，在 Ext2 文件系统中所支持的 block 大小有 1K, 2K 及 4K 三种而已 inode 记录文件的属性/权限等数据，其他重要项目为: 每个 inode 大小均为固定，有 128/256Bytes
+  * 两种基本容量。每个文件都仅会占用一个 inode 而已; 因此文件系统能够 创建的文件数量与 inode 的数量有关;
+  * 文件的 block 在记录文件的实际数据，目录的 block 则在记录该目录下面文件名与其 inode 号码的对照表;
+* 日志式文件系统 \(journal\) 会多出一块记录区，随时记载文件系统的主要活动，可加快 系统复原时间;
+* Linux 文件系统为增加性能，会让内存作为大量的磁盘高速缓存; 
+* 实体链接只是多了一个文件名对该 inode 号码的链接而已;
+* 符号链接就类似Windows的捷径功能。
+* 磁盘的使用必需要经过:分区、格式化与挂载，分别惯用的指令为:gdisk, mkfs, mount 三个指令
+  * 分区时，应使用 parted 检查分区表格式，再判断使用 fdisk/gdisk 来分区，或直接使用 parted 分区
+  * 为了考虑性能，XFS 文件系统格式化时，可以考虑加上 agcount/su/sw/extsize 等参数较 佳
+  * 如果磁盘已无未分区的容量，可以考虑使用大型文件取代磁盘设备的处理方式，通过 dd 与格式化功能。
+  * 开机自动挂载可参考/etc/fstab之设置，设置完毕务必使用 mount -a 测试语法正确否;
 

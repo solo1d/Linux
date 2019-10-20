@@ -11,4 +11,5 @@
   * [文件查阅命令 和 观察文件类型命令\(压缩文件也行\)](linux-wen-jian/wen-jian-cha-yue-ming-ling-he-guan-cha-wen-jian-lei-xing-ming-ling-ya-suo-wen-jian-ye-hang.md)
   * [文件搜索命令 \(which, whereis, locate, find\)](linux-wen-jian/wen-jian-sou-suo-ming-ling-which-whereis-locate-find.md)
 * [Linux磁盘与文件管理](linux-ci-pan-yu-wen-jian-guan-li.md)
+* [文件与文件系统的压缩, 打包和备份](wen-jian-yu-wen-jian-xi-tong-de-ya-suo-da-bao-he-bei-fen.md)
 

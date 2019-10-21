@@ -113,6 +113,10 @@ $xz -k services        #原文件会被保留,并且会出现一个 services.xz 
 
 **tar** 是将多个文件或目录包成一个大文件的指令指令. 而且还可以通过 **`gzip/bzip2/xz`** 的支持.
 
+**`tarfile`**  是进行打包之后 生成的文件,并没有进行压缩. \(**$tar -cv -f file.tar  data**\)
+
+**`tarball`**  是进行打包并且进行压缩之后的文件. \(**$tar -zcv -f file.tar.gz data** \)
+
 ```bash
 $tar  [-z | -j | -J ] [cv] [-f 待创建的新文件名] filename     #打包
 $tar  [-z | -j | -J ] [tv] [-f 既有的 tar 文件名]            #查看
@@ -139,34 +143,139 @@ $tar  [-z | -j | -J ] [xv] [-f 既有的 tar 文件名] [-C 目录]   #解压
 $tar -jcv -f  新文件名.tar.bz2  要被压缩的文件或目录     #压缩
 $tar -Jtv -f  文件名.tar.xz                          #查询
 $tar -zxv -f  文件名.tar.gz   -C 放置解压缩的目录       #解压缩
-
-范例1: 备份 /etc 下的配置文件.并且保留原本文件的权限与属性(-p 选项).
-$su      #root权限
-$time tar -zpcv -f /root/etc.tar.gz  /etc      #备份文件是 etc.tar.gz ,time计算消耗时间
-
-范例2: 解压缩 etc.tar.gz 的所有文件,并放入指定的目录 /tmp/etc 内
-$tar -zxv -f etc.tar.gz  -C  /tmp/etc
-
-范例3: 查阅压缩包的内容, 并找到 'shadow' 这个文件, 并且把它单一的解压出来
-$tar -ztv -f etc.tar.gz  | grep 'shadow'      #压缩包内确实有这个文件
-  输出: ---------- root/root      1299 2019-10-10 09:11 etc/shadow   #这个就是要找的
-$tar -zxv -f etc.tar.gz   etc/shadow            #找到了,并且把它单独解压了出来在当前目录
-
-范例4:  
-
 ```
 
-\*\*\*\*
+### 压缩
 
-\*\*\*\*
+{% hint style="info" %}
+```bash
+备份 /etc 下的配置文件.并且保留原本文件的权限与属性(-p 选项).
+$su      #root权限
+$time tar -zpcv -f /root/etc.tar.gz  /etc      
+    #备份文件是 etc.tar.gz ,time计算消耗时间
+```
+{% endhint %}
 
-\*\*\*\*
+### 解压缩
 
-\*\*\*\*
+{% hint style="info" %}
+```bash
+解压缩 etc.tar.gz 的所有文件,并放入指定的目录 /tmp/etc 内
+$tar -zxv -f etc.tar.gz  -C  /tmp/etc
+```
+{% endhint %}
 
-\*\*\*\*
+### **查阅压缩包的内容**
 
-\*\*\*\*
+{% hint style="info" %}
+```bash
+查阅压缩包是否含有名为 'shadow' 的文件.
+$tar -ztv -f file.tar.gz  | grep 'shadow'
+```
+{% endhint %}
+
+### **仅解开单一文件**
+
+{% hint style="info" %}
+```bash
+查阅压缩包的内容, 并找到 'shadow' 这个文件, 并且把它单一的解压出来
+$tar -ztv -f etc.tar.gz  | grep 'shadow'      #压缩包内确实有这个文件
+  输出: ---------- root/root      1299 2019-10-10 09:11 etc/shadow   #这个就是要找的
+$tar -zxv -f etc.tar.gz   etc/shadow           
+   #找到了,并且把它单独解压了出来在当前目录,如果给 -C 参数 则可以指定目录了.
+```
+{% endhint %}
+
+### **打包某个目录,但不包含该目录下的某些文件**
+
+{% hint style="info" %}
+```bash
+打包 /etc 目录和 /root 目录,并且把打包后的文件放在 /root 下,并且不包含 /root/etc 目录
+$tar -jcv -f /root/system.tar.bz2 --exclude=/root/etc* -exclude=/root/system.tar.bz2 /etc /root
+ #详解: --exclude 后面是不进行打包的目录和文件.后面的/etc 和/root 是会进行打包的文件
+ # 包会在/root下,所以要避免死循环打包,要把 system.tar.bz2 排除在外.
+```
+{% endhint %}
+
+### **仅备份比某个时刻还要新的文件**
+
+{% hint style="info" %}
+```bash
+仅备份比某个时刻还要新的文件,备份目录/etc* ,时间2015/01/01(mtime),包名/root/etc.tar.bz2
+$tar -jcv -f /root/etc.tar.bz2 --newer-mtime='2015/01/01' /etc*
+```
+{% endhint %}
+
+### **打包备份到设备\(磁带\)**
+
+{% hint style="info" %}
+```bash
+将 /etc 内容打包备份磁带(/dev/st0),不需要进行压缩. (企业级备份命令)
+$tar -cv -f /dev/st0  /etc*
+```
+{% endhint %}
+
+### **备份系统配置文件并使用嵌入命令**
+
+{% hint style="info" %}
+```bash
+tar -zcv -f $(date +%Y%m%d).tar.gz --exclude=/root/*.gz --exclude=/root/*.bz2\
+/etc /home /var/spool/mail /var/spool/cron /root
+
+# 会输出当前时间名的文件,   20191021.tar.gz
+# $(date +%Y%m%d)  会返回当前的时间 并当作文件名.
+#要备份的目录有: /etc , /home , /root ,
+#                /var/spool/mail,  (系统中,所有账号的邮件信箱)
+#                /var/spool/cron,  (所有账号的工作排成配置文件)
+#  并排除/root/ 下的两种压缩文件
+```
+{% endhint %}
+
+### 解压后 SELinux 课题
+
+{% hint style="info" %}
+**当使用备份的 /etc 配置文件进行系统恢复的时候,要注意两个地方:** 
+
+* 当将 /etc 配置文件覆盖后, **不要重启** ,随后就输出命令  $**`restorecon -Rv /etc`**  自动修复一下 SELinux 的类型.
+* **如果当覆盖并重启之后**, 使用各种方法登录系统, 然后在**根目录下**创建 **`.autorelabel`** 文件, 再次重启,就可以进入系统了
+
+**`出现问题的原因:  /etc/shadwo 这个文件的 SELinux 类型在还原时被更改了`**
+{% endhint %}
+
+## XFS 文件系统的备份与还原
+
+* 备份时需要使用命令  **`xfsdump`** 
+  * **采用 git 类型的累计备份**
+  * 每次备份都是按照 **level0** 开始的,依次递增
+  * level 的记录档放置于 **`/var/lib/xfsdump/inventory`** 中
+* **使用 `xfsdump` 时需要注意的限制**
+  * **`xfsdump` 不支持没有挂载的文件系统备份!所以只能备份已挂载的!**
+  * **`xfsdump` 必须使用 root 的权限才能操作 \(涉及文件系统的关系\)**
+  * **`xfsdump` 只能备份 XFS 文件系统**
+  * **`xfsdump` 备份下来的数据 \(文件或储存媒体\) 只能让 `xfsrestore` 解析**
+  * **`xfsdump` 是通过文件系统的 UUID 来分辨各个备份文件的，因此不能备份两个具有相同 UUID 的文件系统**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \*\*\*\*
 

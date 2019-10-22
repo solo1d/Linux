@@ -12,4 +12,5 @@
   * [文件搜索命令 \(which, whereis, locate, find\)](linux-wen-jian/wen-jian-sou-suo-ming-ling-which-whereis-locate-find.md)
 * [Linux磁盘与文件管理](linux-ci-pan-yu-wen-jian-guan-li.md)
 * [文件与文件系统的压缩, 打包和备份](wen-jian-yu-wen-jian-xi-tong-de-ya-suo-da-bao-he-bei-fen.md)
+* [VIM 编辑器](vim-bian-ji-qi.md)
 

@@ -6,7 +6,7 @@
 
 vim 中的快捷按键:
 
-```text
+```d
 上下左右   k j h l
 上一页     Ctrl + b
 下一页     Ctrl + f

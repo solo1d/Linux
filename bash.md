@@ -338,10 +338,10 @@ $history  [-raw]  histfiles
 
 范例一:列出目前内存内的所有 history 记忆
 $history	
-输出   .....  
-  858  echo  ${path}
-  859  echo  ${path:-root}
-  860  history
+输出   .....    #省略,从1开始
+      858  echo  ${path}
+      859  echo  ${path:-root}
+      860  history
 
 
 ```

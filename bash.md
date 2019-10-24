@@ -195,7 +195,8 @@ $echo ${var[*}}            # *是万用字符,这样写和上面写效果相同,
 $ulimit   [-SHacdfltu]  [配额]
 选项与参数:
 -H    :hard limit, 严格的设置,必定不能超过这个设置的数值
--S    :soft limit, 
+-S    :soft limit, 警告的设置, 可以超过这个设置值,但是若超过则有警告讯息.
+	在设置上,通常 soft 会比 hard 小, 举例来说, soft 可设置为80, 而hard 在设置上,通常so
 
 
 

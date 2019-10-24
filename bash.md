@@ -363,6 +363,17 @@ $!数字
 	#这个数字表示: 执行第几个指令的意思,(~/.bash_history 文件中的)
 $!指令字符串开头
 	#在 ~/.bash_history 中寻找与 指令字符串开头相仿的指令,并执行.
+
+$history  5
+  867  vim .bash_history 
+  868  history -w aaa
+  869  ls
+  870  vim aaa
+  871  history  5
+$!869
+
+
+
 ```
 
 

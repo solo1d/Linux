@@ -324,6 +324,7 @@ $unalias  lm
 ```
 
 ### 历史命令 history
+
 ```bash
 $history  数字
 $history  [-c]
@@ -333,7 +334,7 @@ $history  [-raw]  histfiles
 -c  :将目前的 shell 中的所有 history 内容全部消除
 -a  :将目前新增的 history 指令新增入 histfiles 中，若没有加 histfiles(就是指定个文件),
 	则默认写入 ~/.bash_history
--r  :将 histfiles 的内容读到目前这个 shell 的 history 记忆中;
+-r  :将 histfiles 的内容读到目前这个 shell 的 history 记忆中(就是拷贝一份);
 -w  :将目前的 history 记忆内容写入 histfiles 中!
 
 #执行错误 或者 无法执行的 指令都会进行存储.
@@ -353,9 +354,6 @@ $history  3
 
 范例三:立刻将目前的数据写入 histfile 当中
 $ history -w		#在默认的情况下，会将历史纪录写入 ~/.bash_history 当中!
- 
-
-
 ```
 
 

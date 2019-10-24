@@ -221,7 +221,7 @@ $echo  ${path%%:*}
 输出: /usr/local/bin		#只剩下了一个
 
 $echo  ${path%%bin*}	    
-输出: /usr/local/bin		#和上面有相同的效果.
+输出: /usr/local/bin		#和上面有相同的效果.因为是删除最长的一个,所以他会向前搜寻.
 
 ```
 

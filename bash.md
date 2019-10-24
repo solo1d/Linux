@@ -343,6 +343,14 @@ $history
       859  echo  ${path:-root}
       860  history
 
+范例二:列出目前最近的 3 笔数据
+$history  3
+输出:  859  echo  ${path:-root}
+      860  history
+      861  history  3
+
+ 
+
 
 ```
 

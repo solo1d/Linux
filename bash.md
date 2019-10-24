@@ -235,6 +235,9 @@ file size               (blocks, -f) 10240	#最大量值为 10MBbytes
 
 #尝试创建大于 10MB 的文件会失败:
 $dd if=/dev/zero of=test.file  bs=1M count=20    #尝试创建一个20MB的文件
+输出 :  文件大小超出限制(吐核)			#虽然报了错,但是这个文件还是会出现
+$ls -lh test.file
+输出: 
 
 
 

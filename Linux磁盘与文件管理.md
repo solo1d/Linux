@@ -42,20 +42,18 @@
 **`Filesystem Description (文件系统描述符), 描述每个 block group 的开始与结束的block 号码, 以及说明每个区段(superblock,bitmap,inodemap,data block) 分别介于哪一个block号码之间. (这部分能够用命令 #dumpe2fs  /dev/系统硬盘  来观察);`**
 
 **`可以通过判断 inode号码来 确认不同文件名 是否位=为相同的文件. ($ls -ild 文件)`**
-{% endhint %}
 
-{% hint style="info" %}
-inode 本身并不记录文件名  ,  文件名是记录在  目录的block当 中的.
-{% endhint %}
 
-{% hint style="info" %}
-一般来说，我们将 inode table 与 data block 称为**`数据存放区域`**，至于其他例如 superblock、 block bitmap 与 inode bitmap 等区段就被称为 **`metadata (中介数据)`** 啰，因为 superblock, inode bitmap 及 block bitmap 的数据是经常变动的，每次新增、移除、编辑时都可能会影响 到这三个部分的数据，因此才被称为**中介数据**的
-{% endhint %}
+
+**inode 本身并不记录文件名  ,  文件名是记录在  目录的block当 中的.**
+
+
+一般来说，我们将 inode table 与 data block 称为 **`数据存放区域`**，至于其他例如 superblock、 block bitmap 与 inode bitmap 等区段就被称为 **`metadata (中介数据)`** 啰，因为 superblock, inode bitmap 及 block bitmap 的数据是经常变动的，每次新增、移除、编辑时都可能会影响 到这三个部分的数据，因此才被称为 **中介数据** 的
+
 
 ## 挂载 点的意义
 
-{% hint style="info" %}
-每个文件系统都有独立的 inode/block/superblock 等信息, 这个文件系统要能够链接到目录树才能被我们使用.
+**每个文件系统都有独立的 inode/block/superblock 等信息, 这个文件系统要能够链接到目录树才能被我们使用.**
 
 **`将 文件系统 与 目录树结合的动作 称为挂载;`**
 {% endhint %}

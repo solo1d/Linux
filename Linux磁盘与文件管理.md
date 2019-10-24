@@ -1,10 +1,10 @@
 # Linux磁盘与文件管理
 
-{% hint style="info" %}
+```bash
 磁盘分区完毕后, 为什么还需要格式化?
 
 **因为每种操作系统所设置的文件 属性/权限 并不相同, 为了存放这些文件所需的数据, 因此就需要将分区进行格式化, 以成为操作系统能够利用的 "文件系统格式\(filesystem\)".**
-{% endhint %}
+```bash
 
 {% hint style="info" %}
 我们称  **一个可被挂载的数据为一个 `文件系统`, 而不是一个分区.**
@@ -91,7 +91,8 @@ xfs 文件系统在数据的分佈上，主要规划为三个部份，一个数�
 {% endhint %}
 
 ```bash
-[root@study ~]# xfs_info /dev/vda21 
+[root@study ~]# xfs_info /dev/vda2
+1 
 1.  meta-data=/dev/vda2 isize=256 agcount=4, agsize=65536 blks
 2.           =                  sectsz=512   attr=2, projid32bit=1
 3.           =                  crc=0        finobt=0
@@ -262,22 +263,29 @@ $gdisk   块设备
     # 当执行 gdisk /dev/xxx 之后, 可以输出 ? 来获取指令动作.
 执行命令后的指令和动作:
 Command (? for help): ?
-b       将GPT数据备份到文件
-c       更改分区的名称
+
+b       将GPT数据备份到文件
+
+c       更改分区的名称
 d       删除一个分区
-i       显示有关分区的详细信息
-l       显示已知的分区类型(就是列表,8300Linux,8200 swap,0700 fat16)
+
+i       显示有关分区的详细信息
+
+l       显示已知的分区类型(就是列表,8300Linux,8200 swap,0700 fat16)
 n       增加一个分区
 o       创建一个新的空GUID分区表（GPT）
-p       列出目前存在的分区表 (常用)
+
+p       列出目前存在的分区表 (常用)
 q       不储存分区就直接离开 gdisk
 r       恢复和转换选项（仅限专家）
-s       排序分区
+
+s       排序分区
 t       更改分区的类型代码
 v       验证磁盘
 w       储存分区操作后离开 gdisk
 x       额外的功能（仅限专家）
-?       打印此菜单
+
+?       打印此菜单
 
 范例:
 $sudo gdisk /dev/sda            #默认只有这一块硬盘(选择硬盘,而不是带编号的分区)
@@ -306,7 +314,8 @@ Command (? for help): n         #n 表示开始分区
 Partition number (4-128, default 4): 4 # 默认就是4号，所以直接回车即可!
 First sector (34-83886046, default = 65026048) or {+-}size{KMGTP}: 65026048 # 也能直接回车
 Last sector (65026048-83886046, default = 83886046) or {+-}size{KMGTP}: +1G  #+1G表示要分出1G空间的分区
-# 这个地方可有趣了!我们不需要自己去计算扇区号码，通过 +容量 的这个方式，
+
+# 这个地方可有趣了!我们不需要自己去计算扇区号码，通过 +容量 的这个方式，
 # 就可以让 gdisk 主动去帮你算出最接近你需要的容量的扇区号码喔!
 Current type is 'Linux filesystem'
 Hex code or GUID (L to show codes, Enter = 8300): # 使用默认值即可~直接回车下去!
@@ -448,9 +457,11 @@ $partprobe           #删除完成需要更新内核的核心列表
 
 ```bash
 $mkfs.xfs  选项  参数   设备名称 (/dev/sda4 )
-选项与参数:关于单位:
+选项与参数:
+关于单位:
 #下面只要谈到“数值”时，没有加单位则为 Bytes 值，可以用 k,m,g,t,p (小写)等来解释
-#比较特殊的是 s 这个单位，它指的是 sector 的“个数”.
+#
+比较特殊的是 s 这个单位，它指的是 sector 的“个数”.
  -b :后面接的是 block 容量，可由 512 到 64k，不过最大容量限制为 Linux 的 4k
  -d :后面接的是重要的 data section 的相关参数值，主要的值有:
       agcount=数值 :设置需要几个储存群组的意思,就是CPU核心数.( 可以通过 $grep 'processor' /proc/cpuinfo 命令获得)
@@ -459,7 +470,8 @@ $mkfs.xfs  选项  参数   设备名称 (/dev/sda4 )
       size=数值    :data section 的容量，亦即你可以不将全部的设备容量用完的意思
       su=数值      :当有 RAID 时，那个 stripe 数值的意思，与下面的 sw 搭配使用
       sw=数值      :当有 RAID 时，用于储存数据的磁盘数量(须扣除备份碟与备用碟)
-      sunit=数值   :与 su 相当，不过单位使用的是“几个 sector(512Bytes大小)”的意思
+      
+sunit=数值   :与 su 相当，不过单位使用的是“几个 sector(512Bytes大小)”的意思
       swidth=数值  :就是 su*sw 的数值，但是以“几个 sector(512Bytes大小)”来设置
  -f :如果设备内已经有文件系统，则需要使用这个 -f 来强制格式化才行!
  -i :与 inode 有较相关的设置，主要的设置值有:
@@ -615,22 +627,32 @@ $mount  -t  文件系统  设备文件名  挂载点目录
 选项和参数:
 -a   :依照配置文件 /etc/fstab 的数据将所有为挂载的磁盘都挂载上来
 -l   :单纯的输入 mount 会显示目前挂载的信息。加上 -l 可增列 Label 名称!
--t :可以加上文件系统种类来指定欲挂载的类型。常见的 Linux 支持类型有:xfs, ext3, ext4,reiserfs,
+-t :可以加上文件系统种类来指定欲挂载的类型。常见的 Linux 支持类型有:xfs, ext3, ext4,
+reiserfs,
      vfat, iso9660(光盘格式), nfs, cifs, smbfs (后三种为网络文件系统类型)
 -n :在默认的情况下，系统会将实际挂载的情况实时写入 /etc/mtab 中，以利其他程序的运行。
-     但在某些情况下(例如单人维护模式)为了避免问题会刻意不写入。此时就得要使用 -n 选项。
+     
+但在某些情况下(例如单人维护模式)为了避免问题会刻意不写入。此时就得要使用 -n 选项。
 -o :后面可以接一些挂载时额外加上的参数!比方说帐号、密码、读写权限等:
-     async, sync   :此文件系统是否使用同步写入 (sync) 或非同步 (async) 的内存机制，
+     async, sync   :此文件系统是否使用同步写入 (sync) 或非同步 (async) 的
+内存机制，
                      请参考[文件系统运行方式] , 默认值是 async 
      atime,noatime  :是否修订文件的读取时间(atime)。为了性能，某些时刻可使用noatime
-     ro, rw   :挂载文件系统成为只读(ro) 或可读写(rw)
+     
+ro, rw   :挂载文件系统成为只读(ro) 或可读写(rw)
      auto, noauto   :允许此 filesystem 被以 mount -a 自动挂载(auto)
-     dev, nodev     :是否允许此 filesystem 上，可创建设备文件? dev 为可允许
-     suid, nosuid   :是否允许此 filesystem 含有 suid/sgid 的文件格式?
+     
+dev, nodev     :是否允许此 filesystem 上，可创建设备文件? dev 为可允许
+     
+suid, nosuid   :是否允许此 filesystem 含有 suid/sgid 的文件格式?
      exec, noexec  :是否允许此 filesystem 上拥有可执行 binary 文件?
-     user, nouser  : 是否允许此 filesystem 让任何使用者执行 mount ?
-                    一般来说，mount 仅有 root 可以进行，但下达 user 参数，则可让一般 user 也能够对此 partition 进行 mount 。
-     defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
+     
+user, nouser  : 是否允许此 filesystem 让任何使用者执行 mount ?
+                    一般来说，
+mount 仅有 root 可以进行，但下达 user 参数，则可让
+一般 user 也能够对此 partition 进行 mount 。
+     
+defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
      remount   : 重新挂载，这在系统出错，或重新更新参数时，很有用!
 ```
 

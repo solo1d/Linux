@@ -365,13 +365,19 @@ $!指令字符串开头
 	#在 ~/.bash_history 中寻找与 指令字符串开头相仿的指令,并执行.
 
 $history  5
+输出:
   867  vim .bash_history 
   868  history -w aaa
   869  ls
   870  vim aaa
   871  history  5
-$!869
 
+$!869
+输出: 
+ls
+aaa      Documents  Music     Public     Videos
+
+$!!	  #执行上一条执行过的指令, 就是 $!869  
 
 
 ```

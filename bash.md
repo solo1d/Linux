@@ -203,7 +203,7 @@ $echo ${path#/*local/bin:}	#删除最短的 /usr/local/bin: 这一串字符串.�
 输出: 
 /usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
-$echo  ${path##/*:}     #删除所有以 /
+$echo  ${path##/*:}     #删除一个最长的字符串 / 开头 :结尾  ,只留下 最后一个. 字符
 
 
 

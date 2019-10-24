@@ -311,11 +311,15 @@ $ls -lh test.file
 
 # 命令别名与历史命令
 ```bash
-#设置
+#设置别名
 $alias  别名='指令选项'
 $alias  lm='ls -la | more'
 
-$
+#直接输入 alias 
+
+#取消别名
+$unalias  别名
+$unalias  lm
 ```
 
 

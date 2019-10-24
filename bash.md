@@ -325,7 +325,8 @@ $unalias  lm
 
 ### 历史命令 history
 **HISTFILESIZE 这个变量决定了 history 会保存多少条指令.**
-**登录主机之后,系统会主动读取 ~/.bash_history 这个文件,来获得你
+**登录主机的时候,系统会主动读取 ~/.bash_history 这个文件,来获得你曾经下过的指令**
+**登录主机之后, 你所下达的指令都会在你退出登录之后 ,才会写入 ~/.bash_history 文件中**
 ```bash
 $history  数字
 $history  [-c]
@@ -336,7 +337,7 @@ $history  [-raw]  histfiles
 -a  :将目前新增的 history 指令新增入 histfiles 中，若没有加 histfiles(就是指定个文件),
 	则默认写入 ~/.bash_history
 -r  :将 histfiles 的内容读到目前这个 shell 的 history 记忆中(就是拷贝一份);
--w  :将目前的 history 记忆内容写入 histfiles 中!
+-w  :将目前的 history 记忆内容写入 histfiles 中,如果未指定,则默认写入 ~/.bash_hiistory
 
 #执行错误 或者 无法执行的 指令都会进行存储.
 
@@ -356,7 +357,12 @@ $history  3
 范例三:立刻将目前的数据写入 histfile 当中
 $ history -w		#在默认的情况下，会将历史纪录写入 ~/.bash_history 当中!
 ```
-
+#### 执行曾经执行过的指令
+```bash
+$!数字
+	#这个数字表示: 执行第几个指令的意思,(~/.bash_history 文件中
+$!指令字符串开头
+```
 
 
 

@@ -229,8 +229,12 @@ $echo  ${path%%bin*}
 - **`变量//旧/新`** 表示从前到后进行替换, 会替换字符串中所有的位置. 
 ```bash
 $echo  ${path}
+输出:
+/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
-$echo  ${path/sbin/SBIN}
+$echo  ${path/sbin/SBIN}    #只替换从头开始的一个串 位置
+输出:
+
 
 
 

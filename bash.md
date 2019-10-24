@@ -207,15 +207,15 @@ $ulimit   [-SHacdfltu]  [配额]
 -t    :可使用的最大 CPU 时间 (单位为秒)
 -u    :单一使用者可以使用的最大程序(process)数量。
 
-范例1: 
-core file size          (blocks, -c) 0
-data seg size           (kbytes, -d) unlimited
+范例1: 列出当前身份的所有限制数据值.(一般账号)
+core file size          (blocks, -c) 0		  #0表示没有限制
+data seg size           (kbytes, -d) unlimited	  #unlimited表示无限
 scheduling priority             (-e) 0
-file size               (blocks, -f) unlimited
+file size               (blocks, -f) unlimited	  #可创建的但一文件的大小
 pending signals                 (-i) 4314
 max locked memory       (kbytes, -l) 64
 max memory size         (kbytes, -m) unlimited
-open files                      (-n) 1024
+open files                      (-n) 1024	  #
 pipe size            (512 bytes, -p) 8
 POSIX message queues     (bytes, -q) 819200
 real-time priority              (-r) 0

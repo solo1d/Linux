@@ -228,7 +228,13 @@ file locks                      (-x) unlimited
 
 范例2: 限制当前使用者仅能创建 10MBytes 以下容量的文件
 $ulimit  -f 10240
-$ulimit  -a
+$ulimit  -a | grep 'file size'
+输出:
+core file size          (blocks, -c) 0
+file size               (blocks, -f) 10240	#最大量值为 10MBbytes
+
+
+
 
 
 

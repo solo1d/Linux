@@ -196,9 +196,9 @@ $echo ${var[*}}            # *是万用字符,这样写和上面写效果相同,
 ```bash
 $path=${PATH}
 $echo ${path}	
-输出: 
+输出: /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
-$echo ${path
+$echo ${path#/
 
 
 

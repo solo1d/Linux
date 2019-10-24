@@ -324,7 +324,8 @@ $unalias  lm
 ```
 
 ### 历史命令 history
-**HISTFILESIZE 这个变量决定了 history 会保存多少条指令.
+**HISTFILESIZE 这个变量决定了 history 会保存多少条指令.**
+**登录主机之后,系统会主动读取 ~/.bash_history 这个文件,来获得你
 ```bash
 $history  数字
 $history  [-c]

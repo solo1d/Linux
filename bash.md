@@ -233,6 +233,8 @@ $ulimit  -a | grep 'file size'
 core file size          (blocks, -c) 0
 file size               (blocks, -f) 10240	#最大量值为 10MBbytes
 
+#尝试创建大于 10MB 的文件会失败:
+$dd if=/dev/zero of=test.file  bs=1M count=20    #尝试创建一个20MB的文件
 
 
 

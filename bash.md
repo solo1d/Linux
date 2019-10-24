@@ -242,7 +242,8 @@ $echo  ${path//bin/BIIN}   #替换串内所有的位置
 /usr/local/BIN:/usr/BIN:/usr/local/sBIN:/usr/sBIN:/home/dmtsai/.local/BIN:/home/dmtsai/BIN
 
 ```
-
+##### 变量的测试与内容替换
+- **`-`** 
 
 
 

@@ -234,7 +234,13 @@ $echo  ${path}
 
 $echo  ${path/sbin/SBIN}    #只替换从头开始的一个串 位置
 输出:
+/usr/local/bin:/usr/bin:/usr/local/SBIN:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
+$echo  ${path//bin/BIIN}   #替换串内所有的位置
+输出:
+/usr/local/BIN:/usr/BIN:/usr/local/sBIN:/usr/sBIN:/home/dmtsai/.local/BIN:/home/dmtsai/BIN
+
+```
 
 
 

@@ -790,8 +790,6 @@ $mount  LABEL=vbird_ext4  /data/ext4       #挂载
 
 **开机挂载的配置文件  `/etc/fstab`**
 
-{% code-tabs %}
-{% code-tabs-item title="fstab" %}
 ```bash
 #设备 或 UUID 等          挂载点        文件系统   文件系统参数                dump  fack
 /dev/mapper/centos-root  /              xfs     defaults                     0 0
@@ -800,8 +798,6 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
 /dev/mapper/centos-home  /home          xfs     defaults                     0 0
 /dev/mapper/centos-swap  swap           swap    defaults                     0 0
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 * 配置文件 **`/etc/fstab`**详解:
   * **第一栏:  磁盘设备文件名  /UUID/LABEL name**

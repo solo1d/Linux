@@ -239,7 +239,8 @@ $dd if=/dev/zero of=test.file  bs=1M count=20    #尝试创建一个20MB的文�
 $ls -lh test.file
 输出: -rw-rw-r--. 1 dmtsai dmtsai 10M 10月 24 11:19 test.file	 #只是10MB
  
-#删除这个新创建的文件,并重新登录,即可解开限制.
+#删除这个新创建的文件,并重新登录,即可解开限制. 
+#文件限制只可以
 #如果是root, 则直接显示: unlimit  无限制.
 ```
 

@@ -668,7 +668,7 @@ defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
 #### 挂载USB\(U盘\)
 
 
-###挂载 U盘
+挂载 U盘
 
 * **`$blkid`**    \#usb 有可能是/dev/sdb1 还有可能是其他的. 我这里就默认是/dev/sdb2了
   * 输出: ``**`/dev/sdb2: LABEL="KK" UUID="B23A-12FC" TYPE="vfat"`** \#LABEL是标签 PARTUUID="649ff936-6271-44ea-8e2f-cddad96c6b7f"
@@ -677,18 +677,17 @@ defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
 * **`$df usb -h #用df 查看是否正确.`**
   * 文件系统 容量 已用 可用 已用% 挂载点 
   * /dev/sdb2 58G 30M 58G 1% /data/usb
-{% endhint %}
+
 
 #### 重新挂载根目录与挂载不特定目录
 
-{% hint style="info" %}
+
 * **重新挂载根目录 `(只有在单人维护模式下, 并且根目录是只读的,才会使用重新挂载根目录的命令)`**
   * **`$mount  -n -o  remount,rw,auto  /`**
 * **将一个目录挂载到另一个目录  `(一般是某些程序无法使用软连接或硬链接,才会有的这种折中办法)`**
   * **`$mkdir -p /data/var ; mount --bind /var  /data/var`**
     * **`两个内容完全一样,就当成硬链接看就好了`**
     * **`详细信息查询:   $mount | grep var`**
-{% endhint %}
 
 ### 卸载 \(umount\)
 

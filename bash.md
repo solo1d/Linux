@@ -336,6 +336,8 @@ $history  [-raw]  histfiles
 -r  :将 histfiles 的内容读到目前这个 shell 的 history 记忆中;
 -w  :将目前的 history 记忆内容写入 histfiles 中!
 
+#执行错误 或者 无法执行的 指令都会进行存储.
+
 范例一:列出目前内存内的所有 history 记忆
 $history	
 输出   .....    #省略,从1开始

@@ -356,7 +356,12 @@ $history  3
 
 范例三:立刻将目前的数据写入 histfile 当中
 $ history -w		#在默认的情况下，会将历史纪录写入 ~/.bash_history 当中!
+
+范例四: 清空指令历史
+$history -cw      #必须同时使用 -c -w, -c 是
+
 ```
+
 #### 执行曾经执行过的指令
 ```bash
 $!数字

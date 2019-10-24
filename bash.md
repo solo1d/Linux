@@ -191,8 +191,8 @@ $echo ${var[*}}            # *是万用字符,这样写和上面写效果相同,
 ##### 变量内容的删除与取代
 ```bash
 $path=${PATH}
-$echo ${path}
-输出: 省略..
+$echo ${path}	
+输出: 
 
 $echo ${path
 

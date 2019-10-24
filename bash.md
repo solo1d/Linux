@@ -194,6 +194,7 @@ $path=${PATH}
 $echo ${path}
 输出: 省略..
 
+$echo ${path
 
 
 

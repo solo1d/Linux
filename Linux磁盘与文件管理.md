@@ -648,18 +648,15 @@ defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
 
 #### 挂载 xfs 和 ext4 硬盘
 
-{% hint style="info" %}
 挂载/dev/sda4 \(xfs\) 到 /data/xfs 目录下
 
 * **`$blkid /dev/sda4`**       \#获得uuid.
   * 输出: /dev/sda4: **UUID="cc8a2665-3fef-43b2-be41-d2f11c2dee11" TYPE="xfs"** PARTLABEL="Linux filesystem" PARTUUID="fbde563e-1d3e-49f3-b1d2-ac002096dbbe"
 * **`$mkdir -p /data/xfs ; mount UUID='cc8a2665-3fef-43b2-be41-d2f11c2dee11' /data/xfs`**
 * **`$df usb -h #用df 查看是否正确`**
-{% endhint %}
 
 #### 挂载光盘
 
-{% hint style="info" %}
 挂载光盘 \( 一般光盘是 sr0 \)
 
 * **`$blkid /dev/sr0`**      \#我这个是第一张光盘, 如果不知道是第几张,可以不带后面这个参数来寻找
@@ -667,12 +664,11 @@ defaults   : 默认值为:rw, suid, dev, exec, auto, nouser, and async
 * **`$mkdir -p /data/cdrom ; mount /dev/sr0 /data/cdrom`**
   *  **\#写UUID也是可以的**
 * **`$df usb -h #用df 查看是否正确`**
-{% endhint %}
 
 #### 挂载USB\(U盘\)
 
-{% hint style="info" %}
-挂载 U盘
+
+###挂载 U盘
 
 * **`$blkid`**    \#usb 有可能是/dev/sdb1 还有可能是其他的. 我这里就默认是/dev/sdb2了
   * 输出: ``**`/dev/sdb2: LABEL="KK" UUID="B23A-12FC" TYPE="vfat"`** \#LABEL是标签 PARTUUID="649ff936-6271-44ea-8e2f-cddad96c6b7f"

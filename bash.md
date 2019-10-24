@@ -214,6 +214,7 @@ $ulimit   [-SHacdfltu]  [配额]
 
 范例1: 列出当前身份的所有限制数据值.(一般账号)
 $ulimit -a
+输出:
 core file size          (blocks, -c) 0		  #0表示没有限制
 data seg size           (kbytes, -d) unlimited	  #unlimited表示无限
 scheduling priority             (-e) 0

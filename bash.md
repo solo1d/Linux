@@ -218,7 +218,10 @@ $echo  ${path%*bin}
 /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/		#仅仅只是少了最后面的一个 bin 字符串
 
 $echo  ${path%%:*}
+输出: /usr/local/bin		#只剩下了一个
 
+$echo  ${path%%bin*}	    
+输出
 
 ```
 

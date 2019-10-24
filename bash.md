@@ -325,6 +325,7 @@ $unalias  lm
 
 ### 历史命令 history
 ```bash
+$history
 
 ```
 

@@ -6,9 +6,7 @@
 
 **上次登录执行过的指令都保存在  `~/.bash_history` 中, 本次登录执行的指令保存在内存中, 当你下线时才会写入这个文件.**
 
-{% hint style="info" %}
 别名  **`$alisa   别名='命令'`**
-{% endhint %}
 
 ### **分辨 指令是来自bash 还是 外部**
 
@@ -122,19 +120,15 @@ $export     变量名称
 
 ####  $    变量\(关于本 shell 的PID\)
 
-{% hint style="info" %}
 **`$`  是一个变量,本身有意义,表示 目前这个 Shell 的线程ID, 也就是当前shell的PID**    
 
  **`$echo    $$                 #这样就得到了目前 shell 的PID`**
-{% endhint %}
 
 #### ?   变量\(上个执行指令的返回值\)
 
-{% hint style="info" %}
 **`?` 变量是非常有用的,   可以得到上个执行程序和指令的返回值. 用来查看是否有错误代码.**
 
 **`$echo   $?                 #这样就得到上个程序或进程的返回值了.`**
-{% endhint %}
 
 ### 变量 键盘读取, 阵列与宣告 : read, array, declare
 
@@ -150,9 +144,38 @@ $read -p "Please keyin your name: " -t 30 named
 $echo  ${named}
 输出: ppq
 ```
+- **变量默认是字符串, 若不指定变量类型,则 1+2 为一个字符串 而不是计算式**
+- **bash 环境中的数值运算, 默认最多仅能达到整数形态,  所以 1/3 结果是0.**
 
+```bash
+$declare  [-aixr]  变量名
+选项与参数:
+-a    :将后面的 变量 的变量定义成为阵列(array)类型
+        +a    :可以取消上面定义的 阵列(array)类型
+-i    :将后面的 变量 的变量定义成为 整数数字(integer) 类型
+        +i    :可以取消上面定义的 整数数字(integer) 类型
+-x    :用法与 export 一样,就是将后面的 自定变量 变成环境变量.
+        +x    :可以将 环境变量 修改为  自定变量
+-r    :将变量设置称为 readonly(只读) 类型,不可被更改,也不能unset取消, (重新登录即可恢复)
+        +r    :将只读变量 修改为 非只读变量
+-p    :可列出后面变量的类型.
+# declare [tab] [tab]  可以列出所有的变量.
 
+范例: 让变量 sum 进行 100+300+50 的加总结果.
+$declare  -i sum=100+300+50
+$echo  ${sum}
+输出:  450
 
+范例: 将 sum 变成环境变量
+$declare  -x sum
+$exprot  | grep sum      #exprot会输出环境变量列表. gerp 会进行查询
+输出: declare -ix sum="450"        #sum是整数类型, 并且具有 环境变量属性
+
+范例: 将sum 变成 自定变量 ( 取消环境变量)
+$declare  +x  sum
+$export | grep sum          #什么都不会输出了,因为不是环境变量了.
+$echo ${sum}
+输出: 450                    #这样就可以输出了
 
 
 

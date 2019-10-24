@@ -379,10 +379,10 @@ aaa      Documents  Music     Public     Videos
 
 $!!	  #执行上一条执行过的指令, 就是 $!869  也就是 $ls
 
-$!vim      #会执行 $vim aaa   因为它是最近执行的
-
-
+$!vim      #会执行 $vim aaa   因为它是最近执行的指令.
 ```
+
+
 
 
 

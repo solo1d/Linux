@@ -310,6 +310,17 @@ $ls -lh test.file
 
 
 # 命令别名与历史命令
+```bash
+$alias  别名='指令选项'
+$alias  rm='ls -la | more'
+```
+
+
+
+
+
+
+
 
 
 

@@ -215,7 +215,9 @@ $echo  ${path##/*:}     #删除一个最长的字符串 / 开头 :结尾  ,只�
 #从后面想前面删除  #
 $echo  ${path%*bin}
 输出:
+/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/		#仅仅只是少了最后面的一个 bin 字符串
 
+$echo  ${path%%
 
 
 ```

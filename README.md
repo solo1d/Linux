@@ -1,7 +1,3 @@
----
-description: CentOS7.7
----
-
 # Linux
 
 ## 操作系统主要管理的的就是整个硬件功能.

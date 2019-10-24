@@ -199,7 +199,11 @@ $echo ${path}
 输出: /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
 $echo ${path#/*local/bin:}	#删除最短的 /usr/local/bin: 这一串字符串.只有这个是完全匹配的
-				#
+				#其实/home/dmtsai/.local/bin: 也匹配,只不过他不是最短的.
+输出: 
+/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
+
+$echo  
 
 
 

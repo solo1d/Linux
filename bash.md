@@ -327,7 +327,7 @@ $unalias  lm
 ```bash
 $history  数字
 $history  [-c]
-$history   [-raw]  histfiles
+$history  [-raw]  histfiles
 选项与参数:
 数字 :意思是“要列出最近的 多少条 命令列表”的意思.
 -c  :将目前的 shell 中的所有 history 内容全部消除
@@ -335,7 +335,13 @@ $history   [-raw]  histfiles
 	则默认写入 ~/.bash_history
 -r  :将 histfiles 的内容读到目前这个 shell 的 history 记忆中;
 -w  :将目前的 history 记忆内容写入 histfiles 中!
- 
+
+范例一:列出目前内存内的所有 history 记忆
+$history	
+输出   .....  
+  858  echo  ${path}
+  859  echo  ${path:-root}
+  860  history
 
 
 ```

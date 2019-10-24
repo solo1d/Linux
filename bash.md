@@ -324,7 +324,7 @@ $unalias  lm
 ```
 
 ### 历史命令 history
-
+**HISTFILESIZE 这个变量决定了 history 会保存多少条指令.
 ```bash
 $history  数字
 $history  [-c]

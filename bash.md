@@ -351,6 +351,8 @@ $history  3
       860  history
       861  history  3
 
+范例三:立刻将目前的数据写入 histfile 当中
+$ history -w		#在默认的情况下，会将历史纪录写入 ~/.bash_history 当中!
  
 
 

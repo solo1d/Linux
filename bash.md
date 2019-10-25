@@ -752,7 +752,7 @@ $ cat /etc/passwd  | sort
  alex:x:1001:1002::/home/alex:/bin/bash
 
 范例二:/etc/passwd 内容是以 : 来分隔的，我想以第三栏来排序，该如何?
-$cat /etc/passwd  | 
+$cat /etc/passwd  | sort -t ':'  -k 3 -n
 
 
 

@@ -474,7 +474,7 @@ bash 在读完了整体环境设置的 /etc/profile 并借此调用其他配置�
 ~/.bash_profile   (这个文件还会再次判断是否有 ~/.bashrc 存在,如果有则使用指令 source 来读取)
 ~/.bash_login
 ~/.profile
-
+	(~/.bashrc 还会去读取 /etc/bashrc 这个文件)
 当上面其中一个读取完成后, 就可以开始操作 bash 了
 ```
 

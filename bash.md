@@ -753,8 +753,14 @@ $ cat /etc/passwd  | sort
 
 范例二:/etc/passwd 内容是以 : 来分隔的，我想以第三栏来排序，该如何?
 $cat /etc/passwd  | sort -t ':'  -k 3 -n
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
 
 
+范例三:利用 last ，将输出的数据仅取帐号，并加以排序
+$
 
 
 

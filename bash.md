@@ -400,6 +400,7 @@ $!vim      #会执行 $vim aaa   因为它是最近执行的指令.
 
 
 进站讯息(就是未登陆前提示的讯息),存放在 /etc/issue 文件中.
+
 ```bash
 $cat /etc/issue
 输出:

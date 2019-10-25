@@ -437,7 +437,7 @@ $vim  /etc/motd     #这个文件 默认是空的.
 		- **`~/.bash_profile` 或 `~/.bash_login` 或 `~/.profile` :属于使用这个人设置,要改自己的数据,就写入这里.**
 - **non-login shell (非登录 shell)**, 取得bash 不需要账号和密码, 就是你已经登录了bash了,然后在开一个bash 界面.也就不需要再次输入账号密码了.
 	- non-login shell 会读取下面这些配置文件:
-		- 
+		- ~/.bashrc   
 - 两者的区别: 就是读取的配置文件不同, 和是否会需要登录.
 ```bash
 bash 的 login shell 情况下所读取的整体配置文件其实只有 /etc/profile, 但是它还会调用其他配置文件.
@@ -489,7 +489,8 @@ $ .  ~/.bashrc	     #这两个效果相同, 可以使用 . 来替代 source 命�
 ```
 
 ```bash
-non-login shell 
+non-login shell 会读的配置文件  ~/.bashrc
+
 
 ```
 

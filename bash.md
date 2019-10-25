@@ -642,7 +642,8 @@ $cat > catfile << "eof"        #eof是结束字符关键字,作用和 ctrl+d 相
 范例一:使用 ls 查阅目录 /tmp/abc 是否存在，若存在则用 touch 创建 /tmp/abc/hehe
 $ls /tmp/abc && touch /tmp/abc/hehe     #因为tmp没有abc目录,所以不会创建hehe 文件
 
-
+范例二 :使用ls 查阅目录 /tmp/abc 是否存在,如果不存在则创建这个目录,然后再创建 hehe 文件
+$ls /tmp/abc && touch /tmp/abc/hehe
 
 ```
 

@@ -825,7 +825,14 @@ $ split [-bl] file PREFIX
 范例一:我的 /etc/services 有六百多K，若想要分成 300K 一个文件时?
 $ cd /tmp; split -b 300k /etc/services services
 $ ll -k services*
+-rw-rw-r--. 1 dmtsai dmtsai 307200 Jul 9 22:52 servicesaa
+-rw-rw-r--. 1 dmtsai dmtsai 307200 Jul 9 22:52 servicesab
+-rw-rw-r--. 1 dmtsai dmtsai 55893  Jul 9 22:52 servicesac
 
+
+范例二:如何将上面的三个小文件合成一个文件，文件名为 servicesback
+  [dmtsai@study tmp]$ cat services* > servicesback
+# 很简单吧?就用数据流重导向就好啦!简单!
  
 
 ```

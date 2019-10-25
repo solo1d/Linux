@@ -673,11 +673,14 @@ $cut  -c 字符区间		  #用于排列整齐的讯息
 
 
 范例一:将 PATH 变量取出，我要找出第五个路径。
-$echo ${PATH}		#原本的内容输出: 
-
+$echo ${PATH}		#原本的内容
+输出:
 /usr/lib64/qt3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
-$echo ${PATH} | cut  -d ':' -f 5
 
+$echo ${PATH} | cut  -d ':' -f 5
+输出:  /usr/sbin		#以: 作为分隔符,将串分成多个部分, 这个串是第5个.
+
+ 
 
  
 

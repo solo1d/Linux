@@ -605,6 +605,8 @@ $find / -name fat  > correct_out  2> err_out
 $find / -name fat 2> /dev/null
 	屏幕上还是会输出正确的内容,错误的内容会被丢弃.
 
+#将正确与错误数据统统写入一个文件去.
+$find / -name fat > list 2>&1
 ```
 
 

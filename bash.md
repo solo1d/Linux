@@ -493,8 +493,8 @@ non-login shell 会读的配置文件  ~/.bashrc
 ```
 #### 其他相关的配置文件
 - **`/etc/man_db.conf`**     这个文件的内容规范了 使用man的时候,去哪里寻找帮助文档(很有用)
-- **`~/bash_histor
-- 
+- **`~/bash_history`**    历史命令记录
+- **`~/.bash_logout`**    记录了 当我登出bas
 
 
 

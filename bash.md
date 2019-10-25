@@ -743,9 +743,16 @@ $sort [-fbMnrtuk] [file or stdin]
  -u :就是 uniq ，相同的数据中，仅出现一行代表;
  -t :分隔符号，默认是用 [tab] 键来分隔;
  -k :以那个区间 (field) 来进行排序的意思
+默认是 "以第一个数据来进行排序的". 而且默认是以文字形态来排序的, 所以由 a 开始排序.
 
+范例一:个人帐号都记录在 /etc/passwd 下，请将帐号进行排序。
+$ cat /etc/passwd  | sort
+ abrt:x:173:173::/etc/abrt:/sbin/nologin
+ adm:x:3:4:adm:/var/adm:/sbin/nologin
+ alex:x:1001:1002::/home/alex:/bin/bash
 
-
+范例二:/etc/passwd 内容是以 : 来分隔的，我想以第三栏来排序，该如何?
+$cat /etc/passwd  | 
 
 
 

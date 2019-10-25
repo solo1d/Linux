@@ -475,12 +475,17 @@ bash 在读完了整体环境设置的 /etc/profile 并借此调用其他配置�
 ~/.bash_login
 ~/.profile
 	(~/.bashrc 还会去读取 /etc/bashrc 这个文件)
+	(/etc/profile 与 ~/.
 当上面其中一个读取完成后, 就可以开始操作 bash 了
 ```
 
 ```bash
 最终被读取到的配置文件是 ~/.bashrc   可以将偏好设置写入这个文件.
-$source   
+$source   配置文件的文件名
+
+
+
+
 ```
 
 

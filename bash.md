@@ -786,6 +786,9 @@ $tr [-ds] SET1 ...
 范例一:将 last 输出的讯息中，所有的小写变成大写字符:
 $ last  | tr '[a-z]' '[A-Z]'
 # 事实上，没有加上单引号也是可以执行的，如: last | tr [a-z] [A-Z] 
+
+范例二 : 删除 dos 文件 pass 中的 ^M 这个断行符号,使之变成 unix 断行符号().
+cat ~/passwd | tr -d '\r' > ~/passwd.linux
 ```
 
 

@@ -492,7 +492,8 @@ $ .  ~/.bashrc	     #这两个效果相同, 可以使用 . 来替代 source 命�
 non-login shell 会读的配置文件  ~/.bashrc
 ```
 #### 其他相关的配置文件
-- /etc/man_db.conf     这个文件的内容规范了 使用man的时候,去哪里寻找帮助文档(很有用)
+- **`/etc/man_db.conf`**     这个文件的内容规范了 使用man的时候,去哪里寻找帮助文档(很有用)
+- **`~/bash_histor
 - 
 
 

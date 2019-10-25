@@ -544,6 +544,9 @@ $set    [-uvCHhmBx]      #-是启用, +是不启用
 $ echo $-	  # $- 变量内容就是 set 的所有设置.
 输出:  himBH	  #这些输出内容对应上面的选项, 启用的选项都会写在这里.(并不是单词)
 
+范例二:设置 "若使用未定义变量时，则显示错误讯息"
+$ echo $vbirding
+ -bash: vbirding: unbound variable
 ```
 
 

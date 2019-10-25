@@ -591,7 +591,7 @@ $echo  '/home/dmtsai'
 | { } | 在中间为命令区块的组合!|
 
 ## 数据流重导向  (重定向)
-- stdin   <<(结束输入字符)  <    (文件描述符0)
+- stdin   <<(结束输入字符)  <(文件输入)    (文件描述符0)
 - stdout  >> >    (文件描述符1)
 - stderr 2>> 2>   (文件描述符2)
 
@@ -616,7 +616,8 @@ $cat > catfile		#cat后面没有接文件名,而且它还想要输出内容到 c
 
 $cat > catfile  < ~/.bashrc     #将~/.bashrc  文件内容读取出来,并写入 catfile 文件中.
 
-$
+$cat > catfile << "eof"
+
 
 
 

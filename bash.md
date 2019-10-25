@@ -439,7 +439,8 @@ $vim  /etc/motd     #这个文件 默认是空的.
 	- non-login shell 会读取下面这些配置文件:
 		- 
 - 两者的区别: 就是读取的配置文件不同, 和是否会需要登录.
-
+```bash
+login shell 
 
 
 

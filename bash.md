@@ -553,15 +553,19 @@ $ echo $vbirding
 
 范例三:执行前，显示该指令内容。
 $ set -x
-输出: ++ printf '\033]0;%s@%s:%s\007' dmtsai study '~'
+输出: ++ printf '\033]0;%s@%s:%s\007' dmtsai study '~'	#这是提示字符的控制码
+
 $echo  '/home/dmtsai'
 输出:
-+ echo /home/dmtsai
++ echo /home/dmtsai		#要输出的指令都会先打印到屏幕上,前面会多出+号
 /home/dmtsai
 ++ printf '\033]0;%s@%s:%s\007' dmtsai study '~'
-
-
 ```
+
+
+
+
+
 
 
 

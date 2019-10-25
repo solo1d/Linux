@@ -773,8 +773,24 @@ $tee  [-a] file
 
 范例: 将 last 的输出存一份到 last.list 文件中;
 $last | tee last.list	    #屏幕会显示一份, 文件还有一份.
+```
 
- 
+### 字符转换命令: tr, col, join, paste, expand
+
+```bash
+$tr [-ds] SET1 ...
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -765,7 +765,17 @@ $last | cut -d ' ' -f 1 | sort -u
 ```
 
 ### 双向重导向  tee
-tee 会同时将数据流
+tee 会同时将数据流分送到 文件 与 屏幕(screen) ,相当于复制了一份.
+```bash
+$tee  [-a] file
+选项与参数:
+-a   :以 累加 的方式,将数据加入到file 中. 默认是替换
+
+范例: 将 last 的输出存一份到 last.list 文件中;
+$last | tee last.list	    #屏幕会显示一份, 文件还有一份.
+
+ 
+
 
 
 

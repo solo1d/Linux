@@ -597,7 +597,7 @@ $echo  '/home/dmtsai'
 
 ```bash
 #将一条命令的 正确输出(stdout) 和错误输出(stderr) 区分开来, 分别放入两个文件.
-$
+$ls -lh /etc  > correct_out  2> err_out
 
 
 

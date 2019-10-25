@@ -525,6 +525,10 @@ start : 在某个程序停止后，重新启动他的 output
 stop : 停止目前屏幕的输出;
 susp : 送出一个 terminal stop 的讯号给正在 run 的程序。
 
+
+范例2 : 将 erase 删除字符, 修改为 ^h 按键.
+$stty 
+
 ```
 
 

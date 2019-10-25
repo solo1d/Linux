@@ -460,6 +460,10 @@ profile 还会去调用外部的设置数据, 默认情况下 下面的数据会
 这也是我们决定 bash 默认使用何种语系的 重要配置文件! 
 文件里最重要的就是 LANG/LC_ALL 这些个变量的设置!
 
+-/usr/share/bash-completion/completions/*
+
+
+
 ```
 
 ```bash

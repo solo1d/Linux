@@ -595,7 +595,9 @@ $echo  '/home/dmtsai'
 - stdout  >> >    (文件描述符1)
 - stderr 2>> 2>   (文件描述符2)
 
-
+```bash
+#将一条命令的 正确输出(stdout) 和错误输出(stderr) 区分开来, 分别放入两个文件.
+$
 
 
 

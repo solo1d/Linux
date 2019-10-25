@@ -732,6 +732,7 @@ $ grep --color=auto 'MANPATH' /etc/man_db.conf
 ```
 
 ###  排序命令:  sort , wc , uniq
+##### sort
 ```bash
 $sort [-fbMnrtuk] [file or stdin]
 选项与参数:
@@ -762,6 +763,7 @@ adm:x:3:4:adm:/var/adm:/sbin/nologin
 范例三:利用 last ，将输出的数据仅取帐号，并加以排序
 $last | cut -d ' ' -f 1 | sort -u
 ```
+
 
 
 

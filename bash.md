@@ -814,9 +814,19 @@ $expand [-t] file
 
 
 ### 文件大小拆分命令  split
-可以将单个大文件拆分成多个小文件, 便于存锤和拷贝.
+可以将单个大文件拆分成多个小文件, 便于存储和拷贝.
 ```bash
+$ split [-bl] file PREFIX
+选项与参数:
+ -b   :后面可接欲拆分成的文件大小，可加单位，例如 b, k, m 等;
+ -l   :以行数来进行拆分。
+ PREFIX  :代表前置字符的意思，可作为拆分文件的前导文字。
 
+范例一:我的 /etc/services 有六百多K，若想要分成 300K 一个文件时?
+$ cd /tmp; split -b 300k /etc/services services
+$ ll -k services*
+
+ 
 
 ```
  

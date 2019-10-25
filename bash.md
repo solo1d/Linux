@@ -792,10 +792,16 @@ cat ~/pass | tr -d '\r' > ~/passwd.linux
 	#那个 \r 指的是 DOS 的断行字符,关于更多的字符，请参考 man tr
 ```
 ```bash
-$col   [-bx]
+$col   -x
 选项与参数:
 -x    :将 tab 键转换成对等的空白键
-
+```
+```bash
+$paste  [-d]  file1  file2		#
+选项与参数:
+ -d :后面可以接分隔字符。默认是以 [tab] 来分隔的!
+ - :如果 file 部分写成 - ，表示来自 stdin 的数据的意思。
+ 
  
 
 

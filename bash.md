@@ -448,7 +448,9 @@ login shell 会读取的配置文件:
 - HOSTNAME:依据主机的 hostname 指令决定此一变量内容; 
 - HISTSIZE:历史命令记录笔数。CentOS 7.x 设置为 1000 ; 
 - umask:包括 root 默认为 022 而一般用户为 002 等!
+
 profile 还会去调用外部的设置数据, 默认情况下 下面的数据会依序被调用进来.
+/etc/profile.d/*.sh
 
 
 

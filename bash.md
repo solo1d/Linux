@@ -616,7 +616,9 @@ $cat > catfile		#cat后面没有接文件名,而且它还想要输出内容到 c
 
 $cat > catfile  < ~/.bashrc     #将~/.bashrc  文件内容读取出来,并写入 catfile 文件中.
 
-$cat > catfile << "eof"
+$cat > catfile << "eof"        #eof是结束字符关键字,作用和 ctrl+d 相同
+>这里需要键盘来输入内容
+>eof
 
 
 

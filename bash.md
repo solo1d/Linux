@@ -652,7 +652,7 @@ $ls /tmp/abc  ||   mkdir /tmp/abc  &&  touch /tmp/abc/hehe     #第一个失败�
 
 - 管道中常常会使用到前一个指令的 stdout (输出) 作为这条指令的 stdin (输入),某些指令需要用到文件名称 (例如 tar) 来进行处理时，该 stdin 与 stdout 可以利用减号 "-" 来替代， 举例来说:
 	- **`$mkdir /tmp/homeback ; tar -cvf - /home | tar -xvf -  -C /tmp/homeback`**
-	- 解读: 将 /home 里面的文件全部打包,但打包的数据传送到管道(stdout),经过管道后,将 tar -cvf 
+	- 解读: 将 /home 里面的文件全部打包,但打包的数据传送到管道(stdout),经过管道后,将 tar -cvf - /home 传送给后面的 tar -xvf -  ,中间的 -  是非常重要的. 后面的 - 是取前一个指令的stdout, 因此就不需要 文件名了.
 
 ![管线命令的处理示意图](assets/管线命令的处理示意图.png)
 
@@ -839,4 +839,7 @@ $ ll -k services*
   [dmtsai@study tmp]$ cat services* >> servicesback
 #就用数据流重导向就好, 一定要用添加式的
 ```
+
+## 小结
+
  

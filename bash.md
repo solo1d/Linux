@@ -486,11 +486,12 @@ $source   配置文件的文件名
 范例: 将主文件夹内的 ~/.bashrc 的设置读入目前的 bash 环境中.
 $source ~/.bashrc
 $ .  ~/.bashrc	     #这两个效果相同, 可以使用 . 来替代 source 命令
-
-
 ```
 
+```bash
+non-login shell 
 
+```
 
 
 

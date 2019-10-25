@@ -562,7 +562,11 @@ $echo  '/home/dmtsai'
 ++ printf '\033]0;%s@%s:%s\007' dmtsai study '~'
 ```
 
-### 
+### 万用字符* 与特殊符号
+|符号|意义|
+| * |代表0个到无穷多个任意字符|
+|content1|content2|content3|
+
 
 
 

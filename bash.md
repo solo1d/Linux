@@ -787,9 +787,16 @@ $tr [-ds] SET1 ...
 $ last  | tr '[a-z]' '[A-Z]'
 # 事实上，没有加上单引号也是可以执行的，如: last | tr [a-z] [A-Z] 
 
-范例二 : 删除 dos 文件 pass 中的 ^M 这个断行符号,使之变成 unix 断行符号().
-cat ~/passwd | tr -d '\r' > ~/passwd.linux
+范例二 : 删除 dos 文件 pass 中的 ^M 这个断行符号,使之变成 unix 断行符号.
+cat ~/pass | tr -d '\r' > ~/passwd.linux
+	#那个 \r 指的是 DOS 的断行字符,关于更多的字符，请参考 man tr
 ```
+```bash
+$col   [-bx]
+选项与参数:
+-x    :将 tab 键转换成对等的空白键
+
+ 
 
 
 

@@ -760,7 +760,11 @@ adm:x:3:4:adm:/var/adm:/sbin/nologin
 
 
 范例三:利用 last ，将输出的数据仅取帐号，并加以排序
-$
+$last | cut -d ' ' -f 1 | sort -u
+```
+
+
+
 
 
 

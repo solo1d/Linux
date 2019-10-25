@@ -618,9 +618,7 @@ $cat > catfile  < ~/.bashrc     #将~/.bashrc  文件内容读取出来,并写�
 
 $cat > catfile << "eof"        #eof是结束字符关键字,作用和 ctrl+d 相同
 >这里需要键盘来输入内容
->eof
-
-
+>eof				#结束输入的关键字 eof,并且eof不会存入 catfile 文件.
 
 
 

@@ -471,9 +471,10 @@ profile 还会去调用外部的设置数据, 默认情况下 下面的数据会
 ~/.bash_profile (login shell 才会读)
 bash 在读完了整体环境设置的 /etc/profile 并借此调用其他配置文件后，接下来则是会读取使 用者的个人配置文件.
 所读取的个人偏好配置文件其实主要有三个依序分别是 :  (其实只是读取其中一个)
-~/.bash_profile  
+~/.bash_profile   (这个文件还会再次判断是否有 ~/.bashrc 存在,如果有则使用指令 source 来读取)
 ~/.bash_login
 ~/.profile
+
 
 
 

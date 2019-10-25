@@ -431,7 +431,8 @@ $vim  /etc/motd     #这个文件 默认是空的.
 
 ### bash 的环境配置文件
 
-- log登录
+- login shell(登录 shell), 就是取得bash的完整流程,需要账号和密码,(就是远程终端登录)
+- non-login shell (非登录 shell), 取得bash
 
 
 

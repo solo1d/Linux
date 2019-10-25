@@ -831,10 +831,8 @@ $ ll -k services*
 
 
 范例二:如何将上面的三个小文件合成一个文件，文件名为 servicesback
-  [dmtsai@study tmp]$ cat services* > servicesback
-# 很简单吧?就用数据流重导向就好啦!简单!
- 
-
+  [dmtsai@study tmp]$ cat services* >> servicesback
+#就用数据流重导向就好, 一定要用添加式的
 ```
  
 

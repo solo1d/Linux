@@ -646,6 +646,8 @@ $ls /tmp/abc && touch /tmp/abc/hehe     #因为tmp没有abc目录,所以不会�
 $ls /tmp/abc  ||   mkdir /tmp/abc  &&  touch /tmp/abc/hehe     #第一个失败则执行第二个
 ```
 
+## 管道命令 (pipe)
+
 
 
 

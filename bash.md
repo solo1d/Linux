@@ -689,13 +689,15 @@ declare -x HISTSIZE="1000"
 declare -x HOME="/home/dmtsai"
 .... 输出省略
 
-$export  |  cut -c 12- 	    #这是个范围值,并且格式化输出
+$export  |  cut -c 12- 	    #这是个范围值,并且格式化输出,
 输出:
 HISTCONTROL="ignoredups"	#每一行前面的 declare -x  这12个字符都没了.
-HISTSIZE="1000"
+HISTSIZE="1000"			#每行的 相同的字符都被删除了
 HOME="/home/dmtsai"
 .....输出省略
 
+范例三:用 last 将显示的登陆者的信息中，仅留下使用者大名
+$last | cut  -d ' ' -f 1
 
 ``
 

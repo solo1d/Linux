@@ -440,7 +440,8 @@ $vim  /etc/motd     #这个文件 默认是空的.
 		- 
 - 两者的区别: 就是读取的配置文件不同, 和是否会需要登录.
 ```bash
-login shell 会读取的配置文件:  
+bash 的
+login shell 会读取的配置文件: 
 /etc/profile	  主要内容:
 - PATH:会依据 UID 决定 PATH 变量要不要含有 sbin 的系统指令目录; 
 - MAIL:依据帐号设置好使用者的 mailbox 到 /var/spool/mail/帐号名; 
@@ -462,9 +463,7 @@ profile 还会去调用外部的设置数据, 默认情况下 下面的数据会
 
 -/usr/share/bash-completion/completions/*
 这个目录下的文件是由/etc/profile_completion.sh 文件载入的.
-[tab]的命令补齐、文件名补齐之外，还可以进行指令的选项
-
-
+[tab]的命令补齐、文件名补齐，指令的选项参数补齐功能,就是从这个目录里面找到的对应的指令来处理的.
 ```
 
 ```bash

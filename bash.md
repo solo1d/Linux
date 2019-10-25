@@ -406,7 +406,18 @@ $cat /etc/issue
 \S
 Kernel \r on an \m
 
-里面的反斜杠作为变量 man issue 配合 man agetty 
+里面的反斜杠作为变量取用,可以使用 man issue 配合 man agetty  来查询得到结果.
+
+issue 内的各代码意义:
+\d 本地端时间的日期;
+\l 显示第几个终端机接口;
+\m 显示硬件的等级 (i386/i486/i586/i686...);
+\n 显示主机的网络名称;
+\O 显示 domain name;
+\r 操作系统的版本 (相当于 uname -r)
+\t 显示本地端时间的时间;
+\S 操作系统的名称;
+\v 操作系统的版本。
 
 
 ```

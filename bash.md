@@ -490,10 +490,9 @@ $ .  ~/.bashrc	     #这两个效果相同, 可以使用 . 来替代 source 命�
 
 ```bash
 non-login shell 会读的配置文件  ~/.bashrc
-
-
 ```
-
+#### 其他相关的配置文件
+- /etc/man_db.conf     
 
 
 

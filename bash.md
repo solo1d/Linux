@@ -612,6 +612,9 @@ $find / -name fat > list 2>&1   #两种输出信息都会写入到 list 文件�
 #将正确的信息写入 错误输出.
 $echo "aaaa"  1>&2 
 
+#将正确的信息丢弃, 只留下错误信息
+$echo  "aaa"  2>/dev/null  1>&2
+
 
 #stdin  的 < 与 <<
 $cat > catfile		#cat后面没有接文件名,而且它还想要输出内容到 catfile 这个新文件去

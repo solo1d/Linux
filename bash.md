@@ -609,7 +609,8 @@ $find / -name fat 2> /dev/null
 $find / -name fat > list 2>&1   #两种输出信息都会写入到 list 文件中,而且先写入正确信信息
 				#后面的 2>&1  是写入同一个文件的特殊写法.
 
-
+$cat > catfile		#cat后面没有接文件名,而且它还想要输出内容到 catfile 这个新文件去
+			#这个时候,就会
 
 
 ```

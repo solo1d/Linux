@@ -860,6 +860,6 @@ $ ll -k services*
 - 万用字符主要有: *, ?, [] 等等
 - 数据流重导向通过 >, 2>, < 之类的符号将输出的信息转到其他文件或设备去; 
 - 连续命令的下达可通过 ; && || 等符号来处理
-管线命令的重点是:“管线命令仅会处理 standard output，对于 standard error output 会 予以忽略” “管线命令必须要能够接受来自前一个指令的数据成为 standard input 继续处理 才行。”
+- 管线命令的重点是:“**管线命令仅会处理 standard output，对于 standard error output 会 予以忽略**” “**管线命令必须要能够接受来自前一个指令的数据成为 standard input 继续处理 才行**。”
 本章介绍的管线命令主要有:cut, grep, sort, wc, uniq, tee, tr, col, join, paste, expand, split, xargs 等。
  

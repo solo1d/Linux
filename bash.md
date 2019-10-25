@@ -503,8 +503,31 @@ $stty  [a]
 -a   :将目前素偶有的stty 参数列出来.
 
 范例1 . 列出所有的按键与按键内容
+$stty -a
+speed 9600 baud; rows 46; columns 80; line = 0;
+intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = M-^?; eol2 = M-^?;
+swtch = <undef>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R; werase = ^W;
+lnext = ^V; flush = ^O; min = 1; time = 0;
+-parenb -parodd -cmspar cs8 -hupcl -cstopb cread -clocal -crtscts
+-ignbrk -brkint -ignpar -parmrk -inpck -istrip -inlcr -igncr icrnl ixon -ixoff
+-iuclc ixany imaxbel iutf8
+opost -olcuc -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0
+isig icanon iexten echo echoe -echok -echonl -noflsh -xcase -tostop -echoprt
+echoctl echoke
 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
 
 

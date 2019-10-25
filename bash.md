@@ -643,6 +643,7 @@ $cat > catfile << "eof"        #eof是结束字符关键字,作用和 ctrl+d 相
 $ls /tmp/abc && touch /tmp/abc/hehe     #因为tmp没有abc目录,所以不会创建hehe 文件
 
 
+
 ```
 
 

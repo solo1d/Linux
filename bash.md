@@ -764,6 +764,8 @@ adm:x:3:4:adm:/var/adm:/sbin/nologin
 $last | cut -d ' ' -f 1 | sort -u
 ```
 
+### 双向重导向  tee
+tee 会同时将数据流
 
 
 

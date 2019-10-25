@@ -638,7 +638,12 @@ $cat > catfile << "eof"        #eof是结束字符关键字,作用和 ctrl+d 相
 - cmd1 || cmd2
 	- 1. 若 cmd1 执行完毕且正确执行($?=0)，则 cmd2 不执行。 
 	- 2. 若 cmd1 执 cmd2 行完毕且为错误 ($?≠0)，则开始执行 cmd2。
+```bash
+范例一:使用 ls 查阅目录 /tmp/abc 是否存在，若存在则用 touch 创建 /tmp/abc/hehe
+$ls /tmp/abc && touch /tmp/abc/hehe     #因为tmp没有abc目录,所以不会创建hehe 文件
 
+
+```
 
 
 

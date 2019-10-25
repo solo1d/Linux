@@ -670,6 +670,15 @@ $cut  -c 字符区间		  #用于排列整齐的讯息
 -d   :后面接分隔字符. 与-f一起使用;
 -f   :依据 -d 的分隔字符将一段讯息分区成为数段，用 -f 取出第几段的意思;
 -c   :以字符 (characters) 的单位取出固定字符区间;
+
+
+范例一:将 PATH 变量取出，我要找出第五个路径。
+$echo ${PATH}		#原本的内容输出: 
+
+/usr/lib64/qt3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
+$echo ${PATH} | cut  -d ':' -f 5
+
+
  
 
 

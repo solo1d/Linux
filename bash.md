@@ -553,7 +553,12 @@ $ echo $vbirding
 
 范例三:执行前，显示该指令内容。
 $ set -x
-
+输出: ++ printf '\033]0;%s@%s:%s\007' dmtsai study '~'
+$echo  '/home/dmtsai'
+输出:
++ echo /home/dmtsai
+/home/dmtsai
+++ printf '\033]0;%s@%s:%s\007' dmtsai study '~'
 
 
 ```

@@ -434,7 +434,7 @@ $vim  /etc/motd     #这个文件 默认是空的.
 - **login shell(登录 shell)**, 就是取得bash的完整流程,需要账号和密码,(就是远程终端登录)
 	- login shell 会读取下面这两个配置文件
 		-  /etc/profile :这是系统整体的设置,最好不要修改.
-		- ~/.bash_profile 或 ~/.bash_
+		- **`~/.bash_profile` 或 `~/.bash_login` 或 `~/.profile` :属于使用这个人设置,要改自己的数据,就写入这里.**
 - **non-login shell (非登录 shell)**, 取得bash 不需要账号和密码, 就是你已经登录了bash了,然后在开一个bash 界面.也就不需要再次输入账号密码了.
 - 两者的区别: 就是读取的配置文件不同, 和是否会需要登录.
 

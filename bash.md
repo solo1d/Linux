@@ -528,9 +528,11 @@ susp : 送出一个 terminal stop 的讯号给正在 run 的程序。
 
 范例2 : 将 erase 删除字符, 修改为 ^h 按键.
 $stty erase ^h        #修改之后,就要使用 ctrl+h 来进行删除了.
+```
+```bash
+$set    
 
 ```
-
 
 
 

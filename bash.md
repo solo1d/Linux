@@ -682,7 +682,19 @@ $echo ${PATH} | cut  -d ':' -f 5
 
  
 范例二:将 export 输出的讯息，取得第 12 字符以后的所有字串
-$export  |  cut -c 12 
+$export            #原本的输出值:
+输出: 
+declare -x HISTCONTROL="ignoredups"
+declare -x HISTSIZE="1000"
+declare -x HOME="/home/dmtsai"
+.... 输出省略
+
+$export  |  cut -c 12- 	    #这是个范围值,并且格式化输出
+输出:
+HISTCONTROL="ignoredups"	#每一行前面的 declare -x  这12个字符都没了.
+HISTSIZE="1000"
+HOME="/home/dmtsai"
+.....输出省略
 
 
 ``

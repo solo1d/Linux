@@ -440,8 +440,22 @@ $vim  /etc/motd     #这个文件 默认是空的.
 		- 
 - 两者的区别: 就是读取的配置文件不同, 和是否会需要登录.
 ```bash
-login shell 
+login shell 会读取的配置文件:  
+/etc/profile	  主要内容:
+PATH:会依据 UID 决定 PATH 变量要不要含有 sbin 的系统指令目录; 
+MAIL:依据帐号设置好使用者的 mailbox 到 /var/spool/mail/帐号名; 
+USER:根据使用者的帐号设置此一变量内容; 
+HOSTNAME:依据主机的 hostname 指令决定此一变量内容; 
+HISTSIZE:历史命令记录笔数。CentOS 7.x 设置为 1000 ; 
+umask:包括 root 默认为 022 而一般用户为 002 等!
 
+
+
+```
+
+```bash
+
+```
 
 
 

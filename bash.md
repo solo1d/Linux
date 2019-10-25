@@ -461,7 +461,8 @@ profile 还会去调用外部的设置数据, 默认情况下 下面的数据会
 文件里最重要的就是 LANG/LC_ALL 这些个变量的设置!
 
 -/usr/share/bash-completion/completions/*
-
+这个目录下的文件是由/etc/profile_completion.sh 文件载入的.
+[tab]的命令补齐、文件名补齐之外，还可以进行指令的选项
 
 
 ```

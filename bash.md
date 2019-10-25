@@ -853,9 +853,9 @@ $ ll -k services*
 - **`set`** 可以观察目前 bash 环境下的所有变量;
 - **`$?`** 亦为变量，是前一个指令执行完毕后的回传值。在 Linux 回传值为 0 代表执行成功;
 -  **`locale`** 可用于观察语系数据;
-- 可用 read 让使用者由键盘输入变量的值
-ulimit 可用以限制使用者使用系统的资源情况
-bash 的配置文件主要分为 login shell 与 non-login shell。login shell 主要读取 /etc/profile 与 ~/.bash_profile， non-login shell 则仅读取 ~/.bashrc
+- 可用 **`read`** 让使用者由键盘输入变量的值
+- **`ulimit`** 可用以限制使用者使用系统的资源情况
+- bash 的配置文件主要分为 login shell 与 non-login shell。login shell 主要读取 /etc/profile 与 ~/.bash_profile， non-login shell 则仅读取 ~/.bashrc
 在使用 vim 时，若不小心按了 [crtl]+s 则画面会被冻结。你可以使用 [ctrl]+q 来解除冻结 万用字符主要有: *, ?, [] 等等
 数据流重导向通过 >, 2>, < 之类的符号将输出的信息转到其他文件或设备去; 连续命令的下达可通过 ; && || 等符号来处理
 管线命令的重点是:“管线命令仅会处理 standard output，对于 standard error output 会 予以忽略” “管线命令必须要能够接受来自前一个指令的数据成为 standard input 继续处理 才行。”

@@ -602,7 +602,9 @@ $find / -name fat  > correct_out  2> err_out
 	#correct_out 里面是找到的正确信息.
 
 #将正确输出保留, 并把错误输出丢弃掉, (/dev/null 是个垃圾桶设备,可以吃掉所有信息)
-$find / -name f
+$find / -name fat 2> /dev/null
+	屏幕上还是会输出正确的内容,错误的内容会被丢弃.
+
 ```
 
 

@@ -671,3 +671,4 @@ $ls /tmp/abc  ||   mkdir /tmp/abc  &&  touch /tmp/abc/hehe     #第一个失败�
 
 
 
+

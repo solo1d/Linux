@@ -523,7 +523,7 @@ kill : 删除在目前命令行上的所有文字;
 eof : End of file 的意思，代表“结束输入”。
 start : 在某个程序停止后，重新启动他的 output 
 stop : 停止目前屏幕的输出;
-
+susp : 送出一个 terminal stop 的讯号给正在 run 的程序。
 
 ```
 

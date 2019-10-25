@@ -609,6 +609,10 @@ $find / -name fat 2> /dev/null
 $find / -name fat > list 2>&1   #两种输出信息都会写入到 list 文件中,而且先写入正确信信息
 				#后面的 2>&1  是写入同一个文件的特殊写法.
 
+#将正确的信息写入 错误输出.
+$
+
+
 #stdin  的 < 与 <<
 $cat > catfile		#cat后面没有接文件名,而且它还想要输出内容到 catfile 这个新文件去
 			#这个时候,就会要求用户在屏幕上进行输入,然后把输入内容写到文件中去.
@@ -620,7 +624,6 @@ $cat > catfile  < ~/.bashrc     #将~/.bashrc  文件内容读取出来,并写�
 $cat > catfile << "eof"        #eof是结束字符关键字,作用和 ctrl+d 相同
 >这里需要键盘来输入内容
 >eof				#结束输入的关键字 eof,并且eof不会存入 catfile 文件.
-
 
 
 ```

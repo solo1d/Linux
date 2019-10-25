@@ -797,11 +797,23 @@ $col   -x
 -x    :将 tab 键转换成对等的空白键
 ```
 ```bash
-$paste  [-d]  file1  file2		#
+$paste  [-d]  file1  file2		#将两个文件中的同一行贴在一起,用 [tab] 分隔
 选项与参数:
  -d :后面可以接分隔字符。默认是以 [tab] 来分隔的!
  - :如果 file 部分写成 - ，表示来自 stdin 的数据的意思。
- 
+
+范例一:用 root 身份，将 /etc/passwd 与 /etc/shadow 同一行贴在一起
+$paste /etc/passwd /etc/shadow		#只是输出,并不会修改原文件.
+```
+```bash
+$expand [-t] file
+选项与参数:
+-t :后面可以接数字。一般来说，一个 tab 按键可以用 8 个空白键取代。
+    我们也可以自行定义一个 [tab] 按键代表多少个字符呢!
+```
+
+
+
  
 
 

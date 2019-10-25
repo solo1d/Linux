@@ -705,6 +705,7 @@ reboot
 ```
 
 #### grep 则是分析一行讯息, 若当然有我们所需要的信息,就将该行拿出来.
+**`grep 可以解析一行文字，取得关键字，若该行有存在关键字，就会整行列出来`**
 ```bash
 $grep  [-acinv] [--color=auto] '搜寻字串'  filename
 选项与参数:
@@ -729,6 +730,20 @@ $ last | grep 'root' | cut -d ' ' -f1
 范例四:取出 /etc/man_db.conf 内含 MANPATH 的那几行
 $ grep --color=auto 'MANPATH' /etc/man_db.conf
 ```
+
+###  排序命令:  sort , wc , uniq
+```bash
+$sort [-fbMnrtuk] [file or stdin]
+选项与参数:
+ -f :忽略大小写的差异，例如 A 与 a 视为编码相同;
+ -b :忽略最前面的空白字符部分;
+ -M :以月份的名字来排序，例如 JAN, DEC 等等的排序方法;
+ -n :使用“纯数字”进行排序(默认是以文字体态来排序的);
+ -r :反向排序;
+ -u :就是 uniq ，相同的数据中，仅出现一行代表;
+ -t :分隔符号，默认是用 [tab] 键来分隔;
+ -k :以那个区间 (field) 来进行排序的意思
+
 
 
 

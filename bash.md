@@ -600,6 +600,9 @@ $echo  '/home/dmtsai'
 $find / -name fat  > correct_out  2> err_out
 	#err_out 里面会提示权限不足而无法寻找的信息
 	#correct_out 里面是找到的正确信息.
+
+#将正确输出保留, 并把错误输出丢弃掉, (/dev/null 是个垃圾桶设备,可以吃掉所有信息)
+$find / -name f
 ```
 
 

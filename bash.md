@@ -698,8 +698,12 @@ HOME="/home/dmtsai"
 
 范例三:用 last 将显示的登陆者的信息中，仅留下使用者大名
 $last | cut  -d ' ' -f 1
+dmtsai
+reboot
+```
 
-``
+
+
 
 
 

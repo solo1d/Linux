@@ -484,7 +484,8 @@ bash 在读完了整体环境设置的 /etc/profile 并借此调用其他配置�
 $source   配置文件的文件名
 
 范例: 将主文件夹内的 ~/.bashrc 的设置读入目前的 bash 环境中.
-$source 
+$source ~/.bashrc
+$ .  ~/.bashrc	     #这两个效果相同, 
 
 
 ```

@@ -47,6 +47,7 @@ $type -a cd
 ```bash
 $echo   ${变量}
 $echo   ${PATH}
+
 输出: /usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:
         /usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
@@ -244,11 +245,11 @@ $echo  ${path//bin/BIIN}   #替换串内所有的位置
 ```
 ##### 变量的测试与内容替换
 - **`-`** 如果前面测试的变量为**未设定**(不是空串),则会将 **`-`** 后面的字符串
-	- $echo  ${path-root}       #只是测试,而不是赋值,如果path是空值,则会输出root
-	- $path=${path-root}        #测试,并将结果赋值,path如果是空值,则将root赋值给path
+	- **`$echo ${path-root}`**       #只是测试,而不是赋值,如果path是空值,则会输出root
+	- **`$path=${path-root}`**        #测试,并将结果赋值,path如果是空值,则将root赋值给path
 - **`:-`** 前面测试的变量为 空串或未设定 ,则会用 -: 后面的字符串来替换.
-	- $echo  ${path:-root}    #只是测试,而不是赋值,如果path是空值或空字符串,则会输出root
-	- $path=${path:-root}     #测试,将结果赋值,path如果是空值或空字符串,则将root赋值给path
+	- **`$echo  ${path:-root}`**    #只是测试,而不是赋值,如果path是空值或空字符串,则会输出root
+	- **`$path=${path:-root}`**     #测试,将结果赋值,path如果是空值或空字符串,则将root赋值给path
 
 # 与文件系统 及 程序的限制关系 : ulimit
 

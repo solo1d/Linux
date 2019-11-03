@@ -149,7 +149,10 @@ $du  选项  文件或目录名
 
 ```bash
 $ln  -i  被连接的文件   创建出的链接文件
-    $ln -i  /etc/crontab   /root/net_hl    
+    $ln -i  /etc/crontab   /root/net_hl
+    	$ll -lh net_hl   /etc/crontab 
+				-rw-r--r--. 2 root root 451 6月  10 2014 net_hl
+				-rw-r--r--. 2 root root 451 6月  10 2014 /etc/crontab
         #创建出的硬链接名是  net_cr 在 /root目录, 它指向/etc/crontab, 并且inode号码相同.
 #只可以链接文件,不能链接目录.
 #不能跨文件系统进行链接.
@@ -164,6 +167,9 @@ $ln  -i  被连接的文件   创建出的链接文件
 ```bash
 $ln  -s  被连接的文件   创建出的链接文件
     $ln  -s  /etc/crontab   /root/net_sl
+   	  $ll -lh  /etc/crontab   /root/net_hl
+		  -rw-r--r--. 1 root root 451 6月  10 2014 /etc/crontab
+		  lrwxrwxrwx. 1 root root  12 11月  3 13:35 /root/net_hl -> /etc/crontab
 #软连接可以链接目录和文件.
 #软链接文件只是指向 被链接文件的 文件名,一旦被链接文件出现修改, 则链接文件失效.
 #软连接是一个独立的新文件,会占用掉 inode 与 block.

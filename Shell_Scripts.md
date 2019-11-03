@@ -179,9 +179,9 @@ time echo "scale=${num}; 4*a(1)" | bc -lq
 |     -L     |        该“文件名”是否存在且为一个链接文件?         |
 |            |                                                    |
 |            | **2. 关于文件的权限侦测，如 $test -r filename 表示可读否 (但 root 权限常有例外)** |
-| -r | 侦测该文件名是否存在且具有“可读”的权限? |
-| -w | 侦测该文件名是否存在且具有“可写”的权限? |
-| -x | 侦测该文件名是否存在且具有“可执行”的权限? |
+| **-r** | **侦测该文件名是否存在且具有“可读”的权限?** |
+| **-w** | **侦测该文件名是否存在且具有“可写”的权限?** |
+| **-x** | **侦测该文件名是否存在且具有“可执行”的权限?** |
 | -u | 侦测该文件名是否存在且具有“SUID”的属性? |
 | -g | 侦测该文件名是否存在且具有“SGID”的属性? |
 | -k | 侦测该文件名是否存在且具有“Sticky bit”的属性? |
@@ -195,21 +195,21 @@ time echo "scale=${num}; 4*a(1)" | bc -lq
 | | **4. 关于两个整数之间的判定，例 如 test n1 -eq n2** |
 | -ep | 两数值相等 (equal) |
 | -ne | 两数值不等 (not equal) |
-| -gt | n1 大于 n2 (greater than) |
-| -lt | n1 小于 n2 (less than)   `$[ "${#}" -lt 2 ]` |
+| **-gt** | **n1 大于 n2 (greater than)** |
+| **-lt** | **n1 小于 n2 (less than)   `$[ "${#}" -lt 2 ]`** |
 | -ge | n1 大于等于 n2 (greater than or equal) |
 | -le | n1 小于等于 n2 (less than or equal) |
 |  |  |
 |  | **5. 判定字串的数据** |
-| test -z string | 判定字串是否为 0 ?若 string 为空字串，则为 true |
+| **test -z string** | **判定字串是否为 0 ?若 string 为空字串，则为 true** |
 | test -n string | 判定字串是否非为 0 ?若 string 为空字串，则为 false。 -n 亦可省略 |
-| test str1 == str2 | 判定 str1 是否等于 str2 ，若相等，则回传 true |
-| test str1 != str2 | 判定 str1 是否不等于 str2 ，若相等，则回传 false |
+| **test str1 == str2** | **判定 str1 是否等于 str2 ，若相等，则回传 true** |
+| **test str1 != str2** | **判定 str1 是否不等于 str2 ，若相等，则回传 false** |
 |  |  |
 |  | **6. 多重条件判定，例如: test -r filename -a -x filename** |
-| -a | (and)两状况同时成立!例如 test -r file -a -x file, 则 file 同时具有 r 与 x 权限时，才回传 true。 |
-| -o | (or)两状况任何一个成立!例如 test -r file -o -x file，则 file 具有 r 或 x 权限时，就可回传 true。 |
-| ! | 反相状态，如 test ! -x file ，当 file 不具有 x(可执行权限) 时，回 传 true |
+| -a | (and)两状况同时成立!例如 `test -r file -a -x file`, s则 file 同时具有 r 与 x 权限时，才回传 true。 |
+| -o | (or)两状况任何一个成立!例如` test -r file -o -x file`，则 file 具有 r 或 x 权限时，就可回传 true。 |
+| ! | 反相状态，如 `test ! -x file` ，当 file 不具有 x(可执行权限) 时，回 传 true |
 
 ```bash
  #!/bin/bash
@@ -412,21 +412,373 @@ fi
 
 
 
-### 利用  case  .... sac 判断
+### 利用  case  .... esac 判断
+
+```bash
+语法格式:				#类似于 switch (变量)     case 变量:   default :
+case $变量名称  in				#关键字 case , 还有变量前有 $ 符号
+  "第一个变量内容")        #每个变量内容建议用双引号括起来，关键字则为小括号)
+  	程序段
+  ;;										#每个程序段结束,都必须要用 ;; 两个分号来处理.
+  "第二个变量内容")
+  	程序段
+  ;;
+  *)										#类似于 C 的 default
+  不包含第一个变量内容与第二个变量内容的其他程序执行段
+  exit 1
+  ;;	
+esac					#case 判断结束标志, 就是反过来写
+```
+
+- `case  $变量  In`    这个语法中, 中间的` $变量 `有两种取得方式:
+  - **直接下达式 ,   直接给予 ${1} 这个变量的内容 (也是主要设计的方式)**
+  - **互动式 ,  通过  read 这个指令来让使用者输入变量的内容.**
+
+```bash
+ #!/bin/bash
+ # Program:
+ # Show "Hello" from $1.... by using case .... esac
+ # History:
+ # 2015/07/16    VBird    First release
+ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+ export PATH
+ case ${1} in
+	  "hello")
+	     echo "Hello, how are you ?"
+	     ;;
+     "")
+	     echo "You MUST input parameters, ex&gt; {${0} someword}"
+	     ;;
+	   *)    # 其实就相当于万用字符，0~无穷多个任意字符之意!
+	     echo "Usage ${0} {hello}"
+	     ;;
+esac
+```
+
+```bash
+#!/bin/bash
+#Program:
+#	This: script only accepts the flowinig parameter: one, two, or three
+#History:
+#	2019/11/03	VBird	Fiirst release
+
+PATH=/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin:/bin:/sbin
+export PATH
+
+echo "只可以输入 one two three"
+read -p "Please input number : " number
+
+case ${number} in
+  "one")
+  	echo "user input  one"
+	;;
+  "two")
+  	echo "user input  two"
+	;;
+  "three")
+  	echo "user input three"
+	;;
+  *)
+  	echo "only input one | two | three"
+	;;
+esac
+```
 
 
 
+### 利用 function  功能
+
+```bash
+function fname() { 			#和C的函数没区别,里面还可以有参数,在函数内可以使用 $1 来得到第一个参数
+ 	程序段							    # 参数 $0 就是函数名,   这里和函数外的 $0脚本名 是不一样的.
+}
+
+调用         带参数调用(参数是 1)
+fname		     fname 1 
+```
+
+```bash
+#!/bin/bash
+# Program:
+#	Use function to repeat information.
+# History:
+# 2015/07/17	VBird	First release
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+
+function printit(){
+	echo "Your choice is ${1}"   # 这个 $1 必须要参考下面指令的下达,也就是第一个函数参数. 
+}
+
+echo "This program will print your selection !"
+case ${1} in
+  "one")
+	  printit 1        #注意， printit 指令后面还有接参数!
+	  ;;
+  "two")
+	  printit 2		    #当输入是 two 时,会输出 Your choice is 2 
+	  ;;
+  "three")
+	  printit 3
+	  ;;
+  *)
+	  echo "Usage ${0} {one|two|three}"
+	  ;;
+esac
+```
 
 
 
+## 循环 (loop)
+
+**循环 分为 `不定循环`和`固定循环` 两种.**
+
+### while do done ,   until do done  (不定循环)
+
+```bash
+while  [ 条件判断式 ]				#当条件成立时, 则进入循环
+do                 #代表循环开始, 可以看成 { 表示循环体开始
+	  程序代码段
+done	             #代表循环结束, 可以看成 } 表示循环体结尾
+```
+
+```bash
+until   [ 条件判断式  ]     #和 while 相反, 当条件不成立时,就进入循环
+do
+	  程序代码段
+done
+```
+
+##### while  循环脚本
+
+```bash
+#!/bin/bash
+# Program:
+# Use loop to calculate "1+2+3+...+100" result.
+# History:
+# 2015/07/17    VBird    First release
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+sum=0
+i=1
+while [ "${i}" != "101" ]
+do
+	sum=$(($sum+${i}))
+	i=$((${i}+1))
+#	echo "sum = " ${sum} " i = " ${i}
+done
+echo " 计算结束 sum = " ${sum} " i = " ${i}
+```
+
+##### until  循环脚本
+
+```bash
+#!/bin/bash
+#Program:
+#	program of user input YES or yes to stop 
+#History:
+#	2019/11/03	ns	First release
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+
+read -p "Please input yes OR YES  to stop program:"  comit
+until [ "${comit}" == "YES" -o "${comit}" == "yes" ]
+do
+	read -p "Please input yes OR YES:" comit
+done
+```
 
 
 
+### for ... do ... done  (固定循环)
+
+```bash
+for   var in con1 con2  con3 .....   #var 是变量, 可以不需要 $来解释, 
+do	                             #后面 con1 是每次循环后 var 被赋予的值. (也可以是变量)
+	程序段
+done
+```
+
+```bash
+#!/bin/bash
+# Program
+#       Use id, finger command to check system account's information.
+# History
+# 2015/07/17    VBird   first release
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+users=$(cut -d ':' -f1 /etc/passwd)    # 摘取账号名称
+for username in ${users}               # 开始循环. 每次从users提取一行,赋值给 username
+do		                                   #当username 最后一行被读取并且完成后,就结束循环
+        id ${username}								#id 命令会输出 该用户的 UID等信息.
+done
+```
+
+```bash
+#!/bin/bash
+#Porgram:
+#	Use ping command to check the network`s PC state
+#History:
+#	2019/11/03	ns	First release
+
+PATH=/bin:/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:~/bin
+export PATH
+
+network="192.168.0"
+
+#命令 seq 是连续命令,会输出 100 到200 之间的数字,每个占一行
+#除 seq之外,还可以使用 bash 内置机制代替:  {100..200} 也是同样的输出
+# for sitenu in  {100..200}   #效果相同.  ( $echo  {100..200} )
+for sitenu in 	$(seq 100 200)
+do
+	#下面在取得 ping 的回传值是正确的还是失败的
+	ping -c 1 -w 1 ${wetwork}.${sitenu} &> /dev/null && result=0 || result=1
+	#开始显示结果是正确的启动(UP) 还是错误的没有链接 (DOWN)
+	if [ "${result}" == 0 ]; then
+		echo "Server ${network}.${sitenu} is UP."
+	else
+		echo "Server ${network}.${sitenu} is DOWN."
+	fi
+done
+```
+
+```bash
+#!/bin/bash
+#Program:
+#
+#History:
+#	2019/11/03	ns	First release
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+
+read -p "Please file name or dirname: " name
+
+#测试输入是否 为空, 以及 该目录是否存在 -d  !表示非,存在会返回1的.
+if [ "${name}" == "" -o ! -d "${name}" ]; then
+	echo "你的系统不存在 ${name} 目录"
+	exit 1
+fi
+
+#开始测试文件,   通过ls 命令来得到 该目录下的文件名称
+filelist=$(ls ${name})
+for filename in ${filelist}
+do
+	perm=""
+	test -r "${dir}/${filename}" && perm="${perm} readable"
+	test -w "${dir}/${filename}" && perm="${perm} writeable"
+	test -x "${dir}/${filename}" && perm="${perm} execuutable"
+	echo "The file ${dir}/${filename}\`s permission is ${perm} "
+done
+```
+
+### for ... do .. done   的数值处理
+
+```bash
+另一种写法:
+for   (( 初始值  ; 限制值  ; 执行步阶 )) #例如 for (( i=1;i<10;i=i+1 ))
+do
+		程序段
+done
+```
+
+```bash
+#!/bin/bash
+#Program:
+#	try do calculate 1+2+....+${your_input}
+#History:
+#	2019/11/03	ns	First release
+
+ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+  export PATH
+
+  read -p "Please input a number, I will count for 1+2...+your_iinput: " nu
+
+  s=0
+  for(( i=1; i<=${nu};i++))
+  do
+	s=$((${s}+${i}))
+  done
+  echo  "The result of '1+2+3+...+${nu}' is  ==> ${s}"
+```
+
+#### 搭配乱数与阵列的实验
+
+```bash
+#!/bin/bash
+# Program:
+# 	Try do tell you what you may eat.
+# History:
+# 2015/07/17	VBird	First release
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+eat[1]="卖当当漢堡包"
+eat[2]="肯爷爷炸鸡"
+eat[3]="彩虹日式便当"
+eat[4]="越油越好吃大雅"
+eat[5]="想不出吃啥学餐"
+eat[6]="太师父便当"
+eat[7]="池上便当"
+eat[8]="怀念火车便当"
+eat[9]="一起吃方便面" 
+eatnum=9
+
+eated=0
+while [ "${eated}" -lt 3 ]; do
+  check=$(( ${RANDOM} * ${eatnum} / 32767 + 1 ))
+  mycheck=0
+     if [ "${eated}" -ge 1 ]; then
+      for i in $(seq 1 ${eated} )
+          do
+          #if [ ${eatedcon[$i]} == $check ]; then
+	  if [ ${eatedcon[$i]} == $check ]; then
+              mycheck=1
+	  fi
+      done
+      fi
+      if [ ${mycheck} == 0 ]; then
+          echo "your may eat ${eat[${check}]}"
+          eated=$(( ${eated} + 1 ))
+          eatedcon[${eated}]=${check}
+       fi
+done
+```
 
 
 
+## Shell script  的追踪与 debug
+
+```bash
+$sh   [-nvx]  script脚本.sh        #实际sh 是符号链接,它链接到 bash 程序(软连接,有l )
+选项与参数:
+ -n :不要执行 script，仅查询语法的问题, 如果没有问题,则什么都不会显示.
+ -v :执行 script ，并且先将 scripts 的内容输出到屏幕上;
+ -x :执行 script 并且将使用到的 script 内容显示到屏幕上，这是很有用的参数!
+
+范例: 将 show_animal.sh 的执行过程全部列出来.
+$sh  -x show_animal.sh
+出现 + 号,则代表的是指令串.
+```
 
 
 
+## 小结
 
-
+- shell script 是利用 shell 的功能所写的一个“程序 (program)”，这个程序是使用纯文本 文件，将一些 shell 的语法与指令(含外部指令)写在里面， 搭配正则表达式、管线命令与数据流重导向等功能，以达到我们所想要的处理目的
+- shell script 用在系统管理上面是很好的一项工具，但是用在处理大量数值运算上，就不够好了，因为 Shell scripts 的速度较慢，且使用的 CPU 资源较多，造成主机资源的分配不良。
+- 在 Shell script 的文件中，指令的执行是从上而下、从左而右的分析与执行;
+- shell script 的执行，至少需要有 r 的权限，若需要直接指令下达，则需要拥有 r 与 x 的权限; 
+- 良好的程序撰写习惯中，第一行要宣告 shell (#!/bin/bash) ，第二行以后则宣告程序用 途、版本、作者等
+- 对谈式脚本可用 read 指令达成;
+- 要创建每次执行脚本都有不同结果的数据，可使用 date 指令利用日期达成;
+- script 的执行若以 source (就是 $source 命令)来执行时，代表在父程序的 bash 内执行之意! 
+- 若需要进行判断式，可使用 test 或中括号 ( [  ]  ) 来处理;
+- 在 script 内，$0, $1, $2..., $@ 是有特殊意义的!
+  - $0  是运行脚本时所使用的脚本路径
+  - $1  是运行脚本前  所写在后面的第一个参数
+  - $#  参数的总个数 , 从 $1 开始计算
+  - $@ 代表所有的输入参数.
+- 条件判断式可使用 if...then 来判断，若是固定变量内容的情况下，可使用 case $var in ... esac 来处理
+- 循环主要分为不定循环 (while, until) 以及固定循环 (for) ，配合 do, done 来达成所 需任务!
+- 我们可使用 sh -x script.sh 来进行程序的 debug 

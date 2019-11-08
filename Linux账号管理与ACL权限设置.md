@@ -127,7 +127,7 @@ $useradd  [-u UID]  [-g 初始化群组] [-G 次要群组]  [-mM] [-c 说明栏]
 -c  :这个就是 /etc/passwd 的第五栏的说明内容, 可以随便设置
 -d  :指定某个目录成为主文件夹，而不要使用默认值。务必使用绝对路径!
 -r  :创建一个系统的帐号，这个帐号的 UID 会有限制 (参考 /etc/login.defs)
--s  :后面接一个 shell ，若没有指定则默认是 /bin/bash 的啦~
+-s  :后面接一个 shell ，若没有指定则默认是 /bin/bash ,如果不想让用户登录 则设置/sbin/nologin
 -e  :后面接一个日期，格式为“YYYY-MM-DD”此项目可写入 shadow 第八字段,亦即帐号失效日的设置项目
 -f  :后面接 shadow 的第七字段项目，指定密码是否会失效。
 	     0为立刻失效，-1  为永远不失效(密码只会过期而强制于登陆时重新设置而已。), 1 为一天后失效.
@@ -392,7 +392,7 @@ $groupdel  group1
 
 
 
-### gpasswd  群组管理员 功能
+### gpasswd  群组管理员 功能  和添加删除组中用户
 
 **群组管理员可以管理哪些帐号可以加入/移出该群组 , 群组管理员是一个管理权限,并不是一个账号.**
 
@@ -435,35 +435,364 @@ root $grep testgroup /etc/group /etc/gshadow
 vbird1 $gpasswd -a arod testgroup
 ```
 
+### 如果多人同时在一个目录内进行开发,并且相互之间可以修改任何文件, 那么这么用户都必须加入一个相同的组,  开发的目录权限必须是  2770 ,也就是SGID , 也必须属于加入的组, 这样才可以进行对所有文件的修改.
 
 
 
+# 主机的细部权限规划:**ACL** 的使用 
+
+ACL 是 `Access Control List(访问控制列表) `的缩写，主要的目的是在提供传统的 owner,group,others 的 read,write,execute 权限之外的细部权限设置 .
+
+ACL 可以针对**`单一使用者，单一文件或目录来 进行 r,w,x 的权限规范`**，对于需要特殊权限的使用状况非常有帮助 
+
+- 针对下面三个方面来进行权限控制
+  - 使用者 (user) :可以针对使用者来设置权限.
+  - 群组 (group) : 针对群组为对象来设置其权限.
+  - 默认属性(mask) : 还可以针对在该目录下创建 新文件/目录 时, 规范新数据的默认权限.
+
+### getfacl  和  setfacl
+
+**`getfacl`:取得某个文件/目录的 ACL 设置项目; **
+
+**`setfacl`:设置某个目录/文件的 ACL 规范。 **
+
+```bash
+$setfacl [-bkRd]  [ { -m | -x } acl参数 ]  目标文件名
+选项与参数:
+ -m :设置后续的 acl 参数给文件使用，不可与 -x 合用;
+ -x :删除后续的 acl 参数，不可与 -m 合用;
+ -b :移除“所有的” ACL 设置参数;
+ -k :移除“默认的” ACL 参数，关于所谓的“默认”参数于下面范例中介绍;
+ -R :递归设置 acl ，亦即包括次目录都会被设置起来;
+ -d :设置“默认 acl 参数”的意思!只对目录有效，在该目录新建的数据会引用此默认值
+
+1. 针对特定使用者的方式:
+	设置规范:  u:[使用者账号列表]:[rwx]    #u代表用户级别
+			  例如针对 vbird1 的权限规范 rx:
+		            $setfacl -m u:vbird1:rx  acl_test    #文件  
+		            		#在设置后的文件或目录 的权限部分,会出现一个 + 号,而且原本权限会变化.
+		            			#可以通过  gitfacl 命令来观察权限.
+2. 针对特定群组的方式:
+	设置规范:   g:[群组列表]:[rwx]     #g代表用户
+
+3. 开放文件的最大权限限制(和mask相反):
+	 设置规范:  m:[rwx]       #m代表mask , 表示设置acl的允许用户设置权限有哪几种.
+
+4.针对默认权限设置目录未来文件的 ACL 权限继承:
+	 设置规范:  d:[u|g]:[用户名列表|群组列表]:[rwx]       #d表示默认继承,其他的是二选一
+	 	         例如: 让 vbird1 在 /srv/project 下面一直具有rx的默认权限(包括未来的新文件)
+	 	         	   $setfacl  -m  d:u:vbird1:rx  /srv/project    #设置完成.
+	 	         	     #如果要是想取消的话, $setfacl  -b  /srv/project  即可.
+5. 取消某个账号的 ACL 权限:
+	  设置规范:  u:用户列表           #不给出权限即可.
+```
+
+```bash
+$getfacl   filename
+选项与参数:
+gitfacl 的选项几乎与 setfacl相同.
+
+列出 刚刚设置过的 acl_test 文件的属性.
+$gitfacl  acl_test
+输出:
+# file: acl_test1    #说明文档名, 这是文件默认属性
+# owner: root        #说明此文件的拥有者，亦即 ls -l 看到的第三使用者字段 ,这是文件默认属性
+# group: root        #此文件的所属群组，亦即 ls -l 看到的第四群组字段, 这是文件默认属性
+user::rwx            #使用者列表栏是空的，代表文件拥有者的权限
+user:vbird1:r-x      #针对 vbird1 的权限设置为 rx ，与拥有者并不同!
+group::r--           #针对文件群组的权限设置仅有 r
+mask::r-x            #此文件默认的有效权限 (mask)
+other::r--           #其他人拥有的权限
+
+以 '#' 开头的 都是文件的默认属性,包括文件名,文件所有者,文件所属组.
+下面的就是属于不同使用者,群组与有效权限(mask) 的设置值.
+```
 
 
 
+## 使用者身份切换
+
+- $su   会直接将身份变成 root, 要求输入 root 账号的密码.
+- $sudo   执行root的指令串, 要求输入使用者自己的密码.
+
+ ```bash
+$su [-lm] [-c 指令] [username]
+选项与参数:             #无法使用su 去切换系统账号,但是可以用系统账号的身份去执行命令.sudo
+ - :单纯使用 - 如“ su - ”代表使用 login-shell 的变量文件读取方式来登陆系统;
+     若使用者名称没有加上去，则代表切换为 root 的身份。 差别是环境变量和很多差异.
+ -l :与 - 类似，但后面需要加欲切换的使用者帐号!也是 login-shell 的方式。
+ -m :-m 与 -p 是一样的，表示“使用目前的环境设置，而不读取新使用者的配置文件”
+-c :仅进行一次指令,随后就退出切换的身份，所以 -c 后面可以加上指令
+				如果指令有很多条,可以使用  sh -c "多条指令"  来进行执行
+
+使用su 变成root 时, 尽量使用 su -  来进行.这样会得到完整的新使用者环境.
+ ```
+
+仅有规范到  /etc/sudoers 内的用户才能够执行 sudo 这个指令,还可以设置不需要密码即可执行sudo 命令.
+
+能否使用 sudo 必须要看 /etc/sudoers 的设置值， 而可使用 sudo 者是通过输入使用者自己的密码来执行后续的指令串 
+
+一般用户能够具有 sudo 的使用权，就是管理员事先审核通过后，才开放 sudo 的使用权的!因此，除非是信任用户，否则一般用户默认是不能操作 sudo 的.
+
+```bash
+$sudo   [-b]  [-u 新使用者账号]   指令
+选项与参数:
+ -b :将后续的指令放到背景中让系统自行执行，而不与目前的 shell 产生影响
+ -u :后面可以接欲切换的使用者，若无此项则代表切换身份为 root 。再后面还可以填写切换用户需要执行的指令
+如果指令有很多条,可以使用  sh -c "多条指令"  来进行执行
+ 
+ 范例: 以 sshd 的身份在 /tmp 下面创建一个名为 mysshd 的文件
+ $sudo -u sshd  touch /tmp/mysshd
+ 
+ 范例: 以 vbird1 的身份创建  ~vbird1/www 并在其中创建 index.html 文件.
+ $sudo -u  vbird1  sh -c "mkdir ~vbird1/www ; touch ~vbird1/www/index.html"
+ 
+```
+
+#### 使用  visudo  来修改 /etc/sudoers 文件.(可执行sudo命令的用户列表)
+
+除了 root 之外的其他帐号，若想要使用 sudo 执行属于 root 的 权限指令，则 root 需要先使用 visudo 去修改 /etc/sudoers ，让该帐号能够使用全部或部分的 root 指令功能 
+
+visudo 也是调用 vi 来进行文件 /etc/sudoers 的编辑, 只不过有语法校验而已.
+
+想开启或关闭某项功能, 可以在行首删除或添加  # 符号即可.
+
+- **单一使用者可进行root 所有指令, 与 sudoers 文件语法:**
+  - **使用 `$visudo`  命令,找到 `root ALL=(ALL)   ALL` 这一行, 然后按照下面格式进行添加.**
+    - root  使用者账号,哪个账号可以使用sudo这个指令的意思.
+    - ALL=(ALL)     登录者的来源主机名称或IP = (可切换的身份, ALL就是全部账号)
+    - 最后的 `ALL`  则是可下达的指令.也可以写 绝对路径的命令.
+      - 例如:  把passwd 这个命令给予 pro1 执行权限:
+        - $visudo       
+        - 输入:  `pro1     ALL=(root)   !/usr/bin/passwd, /usr/bin/passwd [A-Za-z]* , !/usr/bin/passwd  root  `
+          - 上面输入表示,  pro1可以执行passwd A-Za-z 参数的命令,  但不可以执行 passwd 和 passwd root 这两种命令.   ! 表示不可以执行.
+      - 例如: 让使用者(pro1 和 pro2)输入自己的密码 就可以变身成为  root . (危险)
+        - $visudo
+        - 输入以下两行内容 就可以了:    (可以保证 root 密码不外泄)
+          -  `User_Alias  ADMINS = pro1, pro2 `
+          - `ADMINS   ALL=(root)   /bin/su  -`
+- **利用 wheel  群组来进行整个群组的成员sudo 权限添加. ** (很危险)
+  - **还是使用 $visudo 命令,找到  ` %whell   ALL=(ALL)  ALL`  这一行,然后按照下面格式进行添加**
+    - %  代表后面跟的是群组.
+    - whell   是一个群组,   可以自定义目前已存在的群组, 但是一定要注意权限.
+    - 后面的其他内容和上面的一样.
+- **免密码的功能处理,即可以无密码使用 sudo**
+  - **还是使用 $visudo 命令,找到  ` %whell   ALL=(ALL)  ALL  NOPASSWD: ALL`  这一行**
+  - 重点就是 NOPASSWD 这一行, 后面的 ALL 则代表所有指令.
+- 使用别名来进行添加和设置,  很便捷
+  - 使用 $visudo 命令 ,  进入到编辑界面,选择性的添加如下内容: (别名必须大写 )
+    - `User_Alias  ADMPW  = 用户1, 用户2, 用户3`     #这是用户别名,添加用户时候使用, ADMPW 就是自定义的别名
+    - `Comnd_Aias  ADMPWCON =  命令1,  命令2`   #这是命令别名,可以多个设置
+    - `Hose_Alias   ADMHOST = IP地址或者主机名`   #来源主机名称别名
 
 
 
+## 使用者的特殊 Shell  与 PAM 模块
+
+因为系统帐号是不需要登陆的, 所以我们就给他这个`无法登陆`的`合法shell`   (` /sbin/nologin` )
+
+`无法登录` 指的是:**系统帐号是不需要登陆的!所以我们就给他这个无法登陆的合法 shell**
+
+但是这不妨碍系统账号使用其他系统资源.
+
+系统账号是无法登录的, 当我们进行系统账号登录时会提示无法登录, 可以修改和创建 ` /etc/nologin.txt` 的内容来显示自定义的提示内容. `($su - mail )`
+
+### PAM模块
+
+PAM 可以说是一套应用程序接口 (Application Programming Interface, API)，他提供了一 连串的验证机制，只要使用者将验证阶段的需求告知 PAM 后， PAM 就能够回报使用者验证 的结果 (成功或失败)。
+
+由于 PAM 仅是一套验证的机制，又可以提供给其他程序所调用引 用，因此不论你使用什么程序，都可以使用 PAM 来进行验证，如此一来，就能够让帐号密码 或者是其他方式的验证具有一致的结果 
+
+PAM 用来进行验证的数据称为**模块 (Modules)**，每个 PAM 模块的功能都不太相同 
+
+- 详细的模块信息
+  - `/etc/pam.d/`*:每个程序相关的 PAM 配置文件;*
+  - `/lib64/security/`* :PAM 模块文件的实际放置目录;*
+  - `/etc/security/`*:其他 PAM 环境的配置文件;*
+  - `/usr/share/doc/pam-*/`:详细的 PAM 说明文档 
+  - `/lib64/secuurity/`;   模块实际存在的目录
+  - `/var/log/secure ` 发生任何无法登录或是产生无法预期的错误时, PAM模块会将数据记录在这里
 
 
 
+## Linux 主机上的使用者讯息传递 
+
+### 查询使用者: **w, who, last, lastlog** 
+
+```bash
+$w					#目前谁在线,用的是什么终端,什么IP
+ 09:08:35 up  1:00,  1 user,  load average: 0.00, 0.01, 0.05
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU   WHAT
+dmtsai   pts/0    192.168.2.2      08:09    3.00s  0.12s  0.03s  w
+
+# 第一行显示目前的时间、开机 (up) 多久，几个使用者在系统上平均负载等;
+# 第二行只是各个项目的说明，
+# 第三行以后，每行代表一个使用者。如上所示，dmtsai 登陆并取得终端机名 pts/0(远程连线) 之意。
+
+$who 	      #目前谁在线,什么终端,什么IP
+dmtsai   pts/0        2019-11-07 08:09 (192.168.2.2)
+
+$lastlog   # 会列出一张表,显示所有用户的最后一次登录日期
+```
+
+### 使用者互相通信: **write, mesg, wall**   
+
+下面这三个命令只可以和在线的用户进行交谈和发送信息.
+
+```bash
+$write   使用者账号   [使用者所在的 tty 终端接口]      #不支持 pts 远程连线
+		#执行会进入文本框,将要发送的内容输入进去,再使用 [crtl]+d  来结束输入,然后就会发送出去.
+	  #执行这个指令的时候,会打断被连接人所做的工作,强制性弹出对话框. 很不好
+			
+			$mesg  n   #会进入如扰模式,阻止他人使用 write 给自己发信息, 但却无法阻止root
+			$mesg  y   #会解除勿扰模式.
+```
+
+```bash
+广播:
+$wall    "广播内容,所有在线的人都会收到"
+```
+
+### 使用者邮件信箱: **mail** 
+
+邮件都会放置在 /var/spool/mail 里面 ,一个账户 一个mail信箱.
+
+```bash
+寄信: 
+$mail   -s "邮件标题"   账户名@IP地址或域名      #寄信,可以寄给本机人员或网络其他计算机人员
+$mail   -s  "邮件标题"  账户名      #寄信, 只可以寄给本机用户
+#命令输入后,会进入输入模式,可填写邮件内容,当写完邮件后,使用 [回车] . [回车]  来结束输入,并发送邮件
+#这个时候就会退出 编辑模式,进入 标准的命令行模式.
+#建议使用   < 数据重定向  或 管道 |  来进行邮件内容输入.
+		$mail -s '标题'  pro  <  ~/.bashrc
+		$echo ~/.bashrc | mail -s '标题' pro
+		
+
+收信:
+$mail           #直接输入即可进入一个交互页面,
+Heirloom Mail version 12.5 7/5/10.  Type ? for help.
+"/var/spool/mail/pro3": 3 messages 2 new			  #共有三封邮件, 二封新邮件
+    1 dmtsai                Thu Nov  7 09:41  20/613   "hello"
+>N  2 dmtsai                Thu Nov  7 09:47  28/833   "标题"	 # > 表示目前处理的信件
+ N  3 pro3@study.centos.vb  Thu Nov  7 09:48  18/606   "标题"  # N 表示新邮件
+&               #这里会等待你进行输入, 输入 ? 会获得帮助.
+动作: 
+  h数字  :列出表头,  h40  列出40封信件的邮件标题
+  d数字  :删除信件,  d10  删除第10封信件,  d10-20 删除10到20封信件
+  s [数字] [文件名]  : 保存邮件到文件.   s 2 ~/mail   保存第2封邮件的内容到 ~/mail 文件中
+  x    :或者 exit 也可以,  不保存任何更改,退出邮件, (例如删除错误的邮件时,可以用这个丢弃动作)
+  q    :离开邮件, 但是会执行你所做的任何操作.
+```
 
 
 
+## Centos 7  环境下 大量创建账号的方法
+
+### 账号相关的检查工具
+
+```bash
+$pwck    
+#检查 /etc/passwd 这个帐号配置文件内的信息，与实际的主文件夹是否存在 等信息， 
+# 还可以比对 /etc/passwd /etc/shadow 的信息是否一致，
+# 另外，如果 /etc/passwd 内 的数据字段错误时，会提示使用者修订
+
+$pwconv
+#这个指令主要的目的是在“将 /etc/passwd 内的帐号与密码，移动到 /etc/shadow 当中
+# 对手动设置账号很有帮助.
+```
+
+### 大量创建账号脚本 (适用 passwd --stdin 选项)
+
+```bash
+#!/bin/bash
+# This shell script will create amount of linux login accounts for you.
+# 1. check the "accountadd.txt" file exist? you must create that file manually.
+#    one account name one line in the "accountadd.txt" file.
+# 2. use openssl to create users password.
+# 3. User must change his password in his first login.
+# 4. more options check the following url:
+# http://linux.vbird.org/linux_basic/0410accountmanager.php#manual_amount
+# 2015/07/22    VBird
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+# 0. userinput
+usergroup=""                   # if your account need secondary group, add here.
+pwmech="openssl"               # "openssl" or "account" is needed.
+homeperm="no"                  # if "yes" then I will modify home dir permission to 711
+
+# 1. check the accountadd.txt file
+action="${1}"                  # "create" is useradd and "delete" is userdel.
+if [ ! -f accountadd.txt ]; then
+	echo "There is no accountadd.txt file, stop here."
+        exit 1
+fi
+
+[ "${usergroup}" != "" ] && groupadd -r ${usergroup}		 #如果有输入.则创建系统群组
+rm -f outputpw.txt
+usernames=$(cat accountadd.txt)
+
+for username in ${usernames}
+do
+    case ${action} in
+        "create")
+            [ "${usergroup}" != "" ] && usegrp=" -G ${usergroup} " || usegrp=""
+            useradd ${usegrp} ${username}               # 新增帐号 或系统账号
+            [ "${pwmech}" == "openssl" ] && usepw=$(openssl rand -base64 6) || usepw=${username}
+            echo ${usepw} | passwd --stdin ${username}  # 创建密码
+            chage -d 0 ${username}                      # 强制登录时修改密码
+            [ "${homeperm}" == "yes" ] && chmod 711 /home/${username}
+	    echo "username=${username}, password=${usepw}" >> outputpw.txt
+            ;;
+        "delete")
+            echo "deleting ${username}"
+            userdel -r ${username}
+            ;;
+        *)
+            echo "Usage: $0 [create|delete]"
+            ;;
+    esac
+done
+```
 
 
 
+## 小结
+
+- Linux 操作系统上面，关于帐号与群组，其实记录的是 UID/GID 的数字而已;
+
+- 使用者的帐号/群组与 UID/GID 的对应，参考 /etc/passwd 及 /etc/group 两个文件 
+- /etc/passwd 文件结构以冒号隔开，共分为七个字段，分别是“帐号名称、密码、UID、 GID、全名、主文件夹、shell” 
+- UID 只有 0 与非为 0 两种，非为 0 则为一般帐号。一般帐号又分为系统帐号 (1~999) 及可登陆者帐号 (大于 1000)
+- 帐号的密码已经移动到 /etc/shadow 文件中，该文件权限为仅有 root 可以更动。
+  - 该文件 分为九个字段，内容为“ 帐号名称、加密密码、密码更动日期、密码最小可变动日期、密码最大需变动日期、密码过期前警告日数、密码失效天数、 帐号失效日、保留未使用” 
+- 使用者可以支持多个群组，其中在新建文件时会影响新文件群组者，为有效群组。而写 入 /etc/passwd 的第四个字段者， 称为初始群组 
+- 与使用者创建、更改参数、删除有关的指令为:useradd, usermod, userdel等，密码创建 则为 passwd; 
+- 与群组创建、修改、删除有关的指令为:groupadd, groupmod, groupdel 等; 
+- 群组的观察与有效群组的切换分别为:groups 及 newgrp 指令;
+- useradd 指令作用参考的文件有: /etc/default/useradd, /etc/login.defs, /etc/skel/ 等等 
+- 观察使用者详细的密码参数，可以使用“ chage -l 帐号 ”来处理; 
+- 使用者自行修改参数的指令有: chsh, chfn 等，观察指令则有: id, finger 等 
+- ACL 的功能需要文件系统有支持，CentOS 7 默认的 XFS 确实有支持 ACL 功能!
+- ACL 可进行单一个人或群组的权限管理，但 ACL 的启动需要有文件系统的支持;
+- ACL 的设置可使用 setfacl ，查阅则使用 getfacl ;
+- 身份切换可使用 su - ，亦可使用 sudo ，但使用 sudo 者，必须先以 visudo 设置可使用的 指令; 
+- PAM 模块可进行某些程序的验证程序!与 PAM 模块有关的配置文件位于 /etc/pam.d/ 及 */etc/security/
+  \* 
+- 系统上面帐号登陆情况的查询，可使用 w, who, last, lastlog 等; 
+- 线上与使用者交谈可使用 write, wall，离线状态下可使用 mail 传送邮件! 
 
 
 
+```bash
+在使用 useradd 的时候，新增的帐号里面的 UID, GID 还有其他相关的密码控制，都是在/etc/login.defs 还有 /etc/default/useradd 里面规定好的
 
 
+我希望我在设置每个帐号的时候( 使用 useradd )，默认情况中，他们的主文件夹就含 有一个名称为 www 的子目录，我应该怎么作比较好?由于使用 useradd 的时候，会自动 以 /etc/skel 做为默认的主文件夹，所以，我可以在 /etc/skel 里面新增加一个名称为 www 的目录即可
 
 
+由于种种因素，导致你的使用者主文件夹以后都需要被放置到 /account 这个目录下。 请 问，我该如何作，可以让使用 useradd 时，默认的主文件夹就指向 /account ?最简单的 方法，编辑 /etc/default/useradd ，将里头的 HOME=/home 改成 HOME=/account 即 可。
 
+我想要让 dmtsai 这个使用者，加入 vbird1, vbird2, vbird3 这三个群组，且不影响 dmtsai 原本已经支持的次要群组时，该如何动作?usermod -a -G vbird1,vbird2,vbird3 dmtsai
 
-
-
-
-
+```
 

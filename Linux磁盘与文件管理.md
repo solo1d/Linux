@@ -466,8 +466,7 @@ $mkfs.xfs  选项  参数   设备名称 (/dev/sda4 )
       size=数值    :data section 的容量，亦即你可以不将全部的设备容量用完的意思
       su=数值      :当有 RAID 时，那个 stripe 数值的意思，与下面的 sw 搭配使用
       sw=数值      :当有 RAID 时，用于储存数据的磁盘数量(须扣除备份碟与备用碟)
-      
-sunit=数值   :与 su 相当，不过单位使用的是“几个 sector(512Bytes大小)”的意思
+	    sunit=数值   :与 su 相当，不过单位使用的是“几个 sector(512Bytes大小)”的意思
       swidth=数值  :就是 su*sw 的数值，但是以“几个 sector(512Bytes大小)”来设置
  -f :如果设备内已经有文件系统，则需要使用这个 -f 来强制格式化才行!
  -i :与 inode 有较相关的设置，主要的设置值有:
@@ -476,7 +475,7 @@ sunit=数值   :与 su 相当，不过单位使用的是“几个 sector(512Byte
       logdev=device    :log 设备为后面接的哪个设备上头的意思，需设置 internal=0 才可!
       size=数值    :指定这块登录区的容量，通常最小得要有 512 个 block，大约 2M 以上才行!
 -L :后面接这个文件系统的标头名称 Label name 的意思!
--r :指定 realtime section 的相关设置值，常见的有:
+-r :指定 realtime section(数据宽度=srtipe*磁盘数) 的相关设置值，常见的有:
       extsize=数值 :就是那个重要的 extent 数值，一般不须设置，但有 RAID 时，
                     最好设置与 swidth 的数值相同较佳!最小为 4K 最大为 1G. ( extsize=su*sw )
                     
@@ -499,6 +498,20 @@ $blkid /dev/sda4
 输出:
 /dev/sda4: UUID="612da62a-5268-4a2a-b46c-4f982a3d0967" TYPE="xfs" 
 PARTLABEL="Linux filesystem" PARTUUID="fbde563e-1d3e-49f3-b1d2-ac002096dbbe"
+
+
+
+范例: RAID5 , srtipe容量为256k , 有4颗硬盘组成RAID5 所以少了一颗 ,硬盘数就等于3, 数据宽度768K
+$mkfs.xfs -f -d su=256k,sw=3 -r extsize=768k  /dev/md0     #768=256*3
+输出:
+         =                       sectsz=4096  attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=784384, imaxpct=25
+         =                       sunit=64     swidth=192 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=4096  sunit=1 blks, lazy-count=1
+realtime =none                   extsz=786432 blocks=0, rtextents=0
 ```
 
 #### mkfs.ext4 \(Linux 默认的文件系统 ext4\)

@@ -408,7 +408,7 @@ NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
 
 
 #接着用 mdadm  创建 RAID5,  最后的设备文件名用到了 bash 的功能
-$mdadm --create /dev/md0 --auto=yes --level=5 --chunk=256 --raud-devices=4 \
+$mdadm --create /dev/md0 --auto=yes --level=5 --chunk=256 --raid-devices=4 \
 > --spare-devices=1  /dev/sda{4,5,6,7,8}
 输出:
 mdadm: /dev/sda5 appears to contain an ext2fs file system
@@ -588,10 +588,8 @@ $vim /etc/mdadm.conf
 #注解或删除下面内容即可
        ARRAY /dev/md0 UUID=2256da5f:4870775e:cf2fe320:4dfabbc6
 
-
-
-2. 覆盖掉 RAID 的 metabata  以及 XFS 的 superblock (超级区块) , 才关闭 /dev/md0 的方法.
-$dd if=/dev/zero  of=/dev/md0  bs=1M  couunt=50    #这个是经过计算的,不是乱写的. 3GB=50MB
+2. 覆盖掉 RAID 的 metabata  以及 XFS 的 superblock (超级区块) ,才可以关闭 /dev/md0 的方法.
+$dd if=/dev/zero  of=/dev/md0  bs=1M  count=50    #这个是经过计算的,不是乱写的. 3GB=50MB
 $mdadm  --stop  /dev/md0     #这样就关闭了 RAID
 输出:  mdadm: stopped /dev/md0
 $dd if=/dev/zero  of=/dev/sda4  bs=1M count=10    #这个RAID 是从 sda4 开始的,不可乱写
@@ -608,17 +606,532 @@ unused devices: <none>	   #确实没有了
 
 
 
+## 逻辑卷轴管理员 (**Logical Volume Manager**) 
+
+LVM 的重点在于可以弹性的调整 filesystem 的容量 ,而并非在于性能与数据保全上面 .
+
+LVM 可以整合多个实体 partition 在一起， 让这些 partitions 看起来就像是一个磁盘一样 
+
+还可以在未来新增或 移除其他的实体 partition 到这个 LVM 管理的磁盘当中 
+
+**LVM 的作法是将几个实体的 partitions (或 disk) 通过软件组合成为一块看起来是独立的大磁盘 (VG) ,然后将这块大 磁盘再经过分区成为可使用分区 (LV)， 最终就能够挂载使用了  **
+
+- **(Physical Volume), PV, 实体卷轴 **
+  - 实际的 partition (或 Disk) 需要调整系统识别码 (system ID) 成为 8e (LVM 的识别码) ,  可以使用 `gdisk` 命令来进行调整.
+  - 然后再经过` pvcreate` 的指令将他转成 LVM 最底层的实体卷轴 (PV) ，之后才能够将 这些 PV 加以利用 
+- **(Volume Group), VG, 卷轴群组 **
+  - **所谓的 LVM 大磁盘就是将许多 PV 整合成这个 VG 的东西 , 所以 VG 就是 LVM 组合起来的大磁盘 **
+  - **最大容量就是 ‘支持PE 的最大个数’.** 在64位Linux 系统上, 基本上没有容量限制.
+- **(Physical Extent), PE, 实体范围区块 **
+  - LVM 默认使用 4MB 的 PE 区块，而 LVM 的 LV 在 32 位系统上最多仅能含有 65534 个 PE ,因此默认的 LVM 的 **LV** 会有 `4M*65534/(1024M/G)=256G `
+  - **PE 是整个 LVM 最小的储存区块**
+  - **文件数据都是借由写入 PE 来处理的,很像 文件系统的 block **
+  - **调整 PE 会影响到 LVM 的最大容量 (目前已经有没有这限制了)**
+- **(Logical Volume), LV, 逻辑卷轴 **
+  - 最终的 VG 还会被切成 LV，这个 LV 就是最后可以被格式化使用的类似分区的东西.
+  -  LV 的大小就与在此 LV 内的 PE 总数有关 
+  - LV 的设备文件名通常指定为`“ /dev/vgname/lvname ”`的样式 
+
+LVM 可弹性的变更 filesystem 的容量, 是通过 “交换 PE ”来进行数据转换， 将原本 LV 内的 PE 移转到其他设备中以降低 LV 容量，或 将其他设备的 PE 加到此 LV 中以加大容量 
+
+**VG 是整个LVM的总容量, LV 只是从 VG 那里取得 PE 来进行增加容量的操作,容量的基本单位是PE**
+
+通过 PV, VG, LV 的规划之后，再利用 mkfs 就可以将你的 LV 格式化成为可以利用的文件系统 了!而且这个文件系统的容量在未来还能够进行扩充或减少， 而且里面的数据还不会被影 响 .
+
+### **LVM** 实作流程 
+
+- 实现流程
+  - 实体 partition 阶段
+    - 工具 gidsk,  **目标: System ID 需改为 8e00**
+  - PV阶段   (会有多个 PV)
+    - 工具 pvcreate, pvscan    **目标:建立与观察 PV**
+  - VG阶段    (这个时候就只有一个VG了,VG内包含的就是多个PE)
+    - 工具 vgcreate, vgdisplay    **目标:以PV 建立 VG**
+  - LV阶段 
+    - 工具 lvcreate, lvdisplay    **目标:从VG 分割出 LV**
+  - 系统使用阶段
+    - 工具 mkfs ,mount      **目标:格式化挂载并使用.**
+
+#### 1. PV 阶段     创建 PV
+
+```bash
+首先通过 gdisk 来分区和修改 system ID 成为 Linux LVM  系统识别码
+$gdisk  /dev/sda
+  #修改的话则使用 t 选项,  创建的话则使用 n 选项.
+	 4        65124352        67221503   1024.0 MiB  8E00  Linux LVM   #/dev/sda4
+   5        67221504        69318655   1024.0 MiB  8E00  Linux LVM
+   6        69318656        71415807   1024.0 MiB  8E00  Linux LVM
+   7        71415808        73512959   1024.0 MiB  8E00  Linux LVM   #/dev/sda7
+   8        73512960        75610111   1024.0 MiB  8E00  Linux LVM   #这个保留下来,不使用
+
+1. PV 阶段     创建 PV
+	需要使用到的命令
+		$pvcreate   #将实体 partition 创建成为 PV
+		$pvscan     #搜寻目前系统里面任何已经创建完成的 PV 磁盘
+		$pvdisplay  #显示出目前系统上面的 PV 状态
+		$pvremove   #将PV属性移除, 让该 partition 不具有 PV 属性
+
+2. 检查有无 PV 在系统上，然后将 /dev/vda{4-7} 创建成为 PV 格式
+$pvscan
+输出:
+  PV /dev/sda3   VG centos          lvm2 [30.00 GiB / 14.00 GiB free]
+  Total: 1 [30.00 GiB] / in use: 1 [30.00 GiB] / in no VG: 0 [0   ]
+  # sda3 是 /home  xfs文件系统, 使用的就是 LVM进行的分区, 所以出现了它
+
+3. 创建 四个 partition 成为 PV 
+$pvcreate  /dev/sda{4,5,6,7}
+输出:
+  Physical volume "/dev/sda4" successfully created.
+  Physical volume "/dev/sda5" successfully created.
+  Physical volume "/dev/sda6" successfully created.
+  Physical volume "/dev/sda7" successfully created.
+
+4. 再次查看一下  
+$pvscan
+输出:
+  PV /dev/sda3   VG centos          lvm2 [30.00 GiB / 14.00 GiB free]
+  PV /dev/sda4                      lvm2 [1.00 GiB]
+  PV /dev/sda7                      lvm2 [1.00 GiB]
+  PV /dev/sda5                      lvm2 [1.00 GiB]
+  PV /dev/sda6                      lvm2 [1.00 GiB]
+  Total: 5 [34.00 GiB] / in use: 1 [30.00 GiB] / in no VG: 4 [4.00 GiB]
+# 这就分别显示每个 PV 的信息与系统所有 PV 的信息。
+# 尤其最后一行，显示的是: 整体 PV 的量 / 已经被使用到 VG 的 PV 量 / 剩余的 PV 量
+
+5. 更详细的列出系统上面每个 PV 的个别信息.
+$pvdisplay  /dev/sda4
+输出:
+  "/dev/sda4" is a new physical volume of "1.00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/sda4          #实际的 partition 设备米ing次
+  VG Name                                  #因为没有分配出去,所以是空白
+  PV Size               1.00 GiB           #容量说明
+  Allocatable           NO						     #是否已被分配，结果是 NO
+  PE Size               0                  #在此 PV 内的 PE 大小
+  Total PE              0                  #共分区出几个 PE
+  Free PE               0                  #没被 LV 用掉的 PE
+  Allocated PE          0                  #已分配出去的 PE 数量
+  PV UUID               Dl4CnQ-iwoY-s47w-cfXB-3QRc-rO8B-bHCG2O
+  #由于 PE 是在创建 VG 时才给予的参数，因此在这里看到的 PV 里头的 PE 都会是 0
+  # 而且也没有多余的 PE 可供分配 (Free)
+```
+
+#### 2.  VG 阶段  
+
+**与 PV 不同的是， VG 的名称是自订的 **
+
+```bash
+创建 VG 及 VG 相关的指令
+		$vgcreate  :就是主要创建 VG 的指令!他的参数比较多下面介绍
+		$vgscan    :搜寻系统上面是否有 VG 存在
+		$vgdisplay :显示目前系统上面的 VG 状态;
+		$vgextend  :在 VG 内增加额外的 PV ;
+		$vgreduce  :在 VG 内移除 PV;
+		$vgchange  :设置 VG 是否启动 (active);  vgchange -a n 关闭 y 开启
+		$vgremove : 删除一个 VG 
+
+$vgcreate [-s N[mgt]]  VG名称  PV名称
+选项与参数:
+	-s  :后面接 PE 的大小 (size), 单位是 m g t   (MB, GB, TB )
+
+1. 将 /dev/sda4-6 创建成为一个 VG , 且指定 PE 为 16MB
+$vgcreate  -s  16M  vbirdvg  /dev/sda{4,5,6}    #故意缺少一个
+    Volume group "vbirdvg" successfully created    #创建成功.
+
+2.检查一下
+$vgscan 
+  Reading volume groups from cache.
+  Found volume group "centos" using metadata type lvm2     #安装系统时创建的
+  Found volume group "vbirdvg" using metadata type lvm2    #刚刚创建的
+
+3. 更详细的列出 VG 的信息
+$vgdisplay vbirdvg 
+  --- Volume group ---
+  VG Name               vbirdvg
+  System ID             
+  Format                lvm2
+  Metadata Areas        3
+  Metadata Sequence No  1
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                3
+  Act PV                3
+  VG Size               2.95 GiB      #整体的 VG 容量
+  PE Size               16.00 MiB     #内部每个 PE 的大小
+  Total PE              189           #总共 PE 的数量
+  Alloc PE / Size       0 / 0   
+  Free  PE / Size       189 / 2.95 GiB    #可以分配给 LV 的 PE数量/容量 总数
+  VG UUID               Xv30qX-1eRm-s07v-WfJY-4mEq-c3dm-QX67AN
+# 最后那三行指的就是 PE 能够使用的情况!由于尚未切出 LV，因此所有的 PE 均可自由使用。
+
+4. 假设要增加 VG 的容量.
+$vgextend  vbirdvg  /dev/sda7
+	 Volume group "vbirdvg" successfully extended    #成功
+```
+
+#### 3.  LV 阶段
+
+VG 是创建大磁盘, 然后创建的分区就是 LV.
+
+使用 VG时 可以使用 vbirdvg 名称, 但是使用  LV 必须全名  /dev/vbirdvg/vbirdlv 
+
+```bash
+创建 LV 的相关指令
+		$lvcreate   :创建LV
+		$lvscan     :查询系统上面的 LV
+		$lvdisplay  :显示系统上面的 LV 状态
+		$lvextend   :增加 LV 容量
+		$lvreduce   :减少 LV 容量
+		$lvremove   :删除一个LV
+		$lvresize   :对 LV 进行容量大小的调整
+
+$lvcreate  [-L N[mgt]]  [-n LV名称]  VG名称
+$lvcreate  [-l N]  [-n LV名称]  VG名称
+选项与参数:
+-L   后面接容量, m g t都是容量单位,但是最小的单位是 PE,因此这个数量必须是 PE 的倍数.
+-l   后面接 PE 的个数
+-n   后面接的就是 LV 的名称
+
+
+1. 将 vbirdvg (VG)  分2GB 给 vbirdlv  .  (每个PE 16MB)
+$lvcreate  -L 2G  -n vbirdlv   vbirdvg
+输出:    Logical volume "vbirdlv" created.      #成功.
+				#也可以使用  $lvcreate -l 128 -n vbirdlv vbirdvg    #128=2048/16
+
+2. 查看一下.
+$lvscan 
+  ACTIVE            '/dev/centos/root' [10.00 GiB] inherit
+  ACTIVE            '/dev/centos/home' [5.00 GiB] inherit
+  ACTIVE            '/dev/centos/swap' [1.00 GiB] inherit
+  ACTIVE            '/dev/vbirdvg/vbirdlv' [2.00 GiB] inherit    #这里新增了
+
+$lvdisplay /dev/vbirdvg/vbirdlv
+  --- Logical volume ---
+  LV Path                /dev/vbirdvg/vbirdlv      #这个是 LV 的全名
+  LV Name                vbirdlv
+  VG Name                vbirdvg
+  LV UUID                kaRn2q-sbq2-Exd2-Gisk-EUfo-UOlz-tnFwTf
+  LV Write Access        read/write
+  LV Creation host, time study.centos.vbird, 2019-11-09 12:19:59 +0800
+  LV Status              available
+  # open                 0
+  LV Size                2.00 GiB          #这个LV分区的容量
+  Current LE             128               
+  Segments               3
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:3
+
+3. 格式化 和挂载
+$mkfs.xfs  /dev/vbirdvg/vbirdlv     #这里必须写全名 进行格式化
+$mkdir /srv/lvm  ;  mount /dev/vbirdvg/vbirdlv /srv/lvm   #创建挂载点,并且进行挂载
+$df -Th  /srv/lvm      #查看一下是否成功
+输出: 
+文件系统                     类型   容量    已用  可用   已用%  挂载点
+/dev/mapper/vbirdvg-vbirdlv xfs   2.0G   33M  2.0G    2%   /srv/lvm
+
+
+4. 增大 LV 分区的容量, (首先确定 VG 的空间是没有被使用完全的, 否则还要VG 和 PV 容量)
+$vgdisplay  vbirdvg | grep -i  'free'     #确定剩余可用的容量
+	  Free  PE / Size       124 / <1.94 GiB        #确实有
+
+ - 放大 LV  , 利用 lvresize 来增加
+ $lvresize -L  +500M  /dev/vbirdvg/vbirdlv
+     Rounding size to boundary between physical extents: 512.00 MiB.
+     Size of logical volume vbirdvg/vbirdlv changed from 2.00 GiB (128 extents) to 2.50GiB (160 extents).
+     Logical volume vbirdvg/vbirdlv successfully resized.
+     #这样就增加了 LV 500M 的容量,从2GB变成2.5GB ,  增加用+  减少用- 
+
+- 放大后,还需要处理文件系统, 使用 xfs_growfs 来进行处理,并且数据不丢失,也不用下线(卸载)
+	$xfs_info /srv/lvm        #首先看一下原本文件系统内的 superblock 记录情况.
+	$xfs_growfs /srv/lvm      # 这一步骤才是最重要的! 
+	$xfs_info /srv/lvm 	      # 再次查看一下, 应该会有变化.
+```
+
+
+
+### 使用 **LVM thin Volume** 让 **LVM** 动态自动调整磁盘使用率 
+
+先创建一个可以实支实 付、用多少容量才分配实际写入多少容量的磁盘**容量储存池 (thin pool)**， 然后再由这个 thin pool 去产生一个“指定要固定容量大小的 LV 设备” 
+
+1. 由vbirdvg的剩余容量取出1GB来做出一个名为vbirdtpool的thinpool LV设备，这就 是所谓的磁盘容量储存池 (thin pool) 
+
+2. 由vbirdvg内的vbirdtpool产生一个名为vbirdthin1的10GB  LV设备 
+3. 将此设备实际格式化为xfs文件系统，并且挂载于/srv/thin目录内! 
+
+```bash
+1. 先以 lvcreate 来创建 vbirdtpool 这个 thin pool 设备:
+$lvcreate  -L 1G  -T vbirdvg/vbirdtpool    #重要的创建指令,条件是vbirdvg 还有1G剩余空间
+$lvdisplay /dev/vbirdvg/vbirdtpool     #查看一下状态
+  --- Logical volume ---
+  LV Name                vbirdtpool
+  VG Name                vbirdvg
+  LV UUID                ULy88n-nil8-Vjlq-4DDI-icqB-aWWp-jOoCtr
+  LV Write Access        read/write
+  LV Creation host, time study.centos.vbird, 2019-11-09 13:47:58 +0800
+  LV Pool metadata       vbirdtpool_tmeta
+  LV Pool data           vbirdtpool_tdata
+  LV Status              available
+  # open                 0
+  LV Size                1.00 GiB      #总共可分配出去的容量
+  Allocated pool data    0.00%         #已分配的容量百分比
+  Allocated metadata     10.23%        #已分配的中介数据百分比
+  Current LE             64
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:6
+  #主要属性是 LV 设备中还可以有再分配 (AllocatedO 这个项目,  存储池
+
+
+2. 开始创建 vbirdthin1 这个有 10GB 的设备，注意!必须使用 --thin 与 vbirdtpool 链接
+$lvcreate -V 10G   -T vbirdvg/vbirdtpool   -n vbirdthin1    #创建完成,但是会有警告
+
+$lvs /dev/vbirdvg            #查看一下
+  LV         VG      Attr       LSize  Pool       Origin Data%  Meta%  Move Log 
+  vbirdlv    vbirdvg -wi-ao----  2.50g                                                          
+  vbirdthin1 vbirdvg Vwi-a-tz-- 10.00g vbirdtpool        0.00                                   
+  vbirdtpool vbirdvg twi-aotz--  1.00g                   0.00   10.25 
+#产生了一个 10Gb 空间的设备. 是建立在 vbirdtpool 1G 存储池之上的.
+
+
+3. 创建文件系统,并挂载
+$mkfs.xfs  /dev/vbirdvg/vbirdthin1
+$mkdir  /srv/thin ; mount /dev/vbirdvg/vbirdthin1  /srv/thin   #挂载
+$df -Th  /srv/thin
+文件系统                       类型  容量  已用  可用 已用% 挂载点
+/dev/mapper/vbirdvg-vbirdthin1 xfs    10G   33M   10G    1% /srv/thin
+# 真的10GB
+
+$lvs vbirdvg   #可以用来监督  /dev/vbirdthin1 和 /dev/vbirdvg/vbirthin1 的容量
+  LV         VG      Attr       LSize  Pool       Origin Data%  Meta%  Move Log
+  vbirdlv    vbirdvg -wi-ao----  2.50g                                                          
+  vbirdthin1 vbirdvg Vwi-aotz-- 10.00g vbirdtpool        4.54                                   
+  vbirdtpool vbirdvg twi-aotz--  1.00g                   45.43  11.67 
+# vbirdtpool  是重点项目, 毕竟 vbirdthin1 是虚拟的,归根结底还是使用的 vbirdtpool 的容量.
+```
+
+
+
+### **LVM** 的 **LV** 磁盘快照 
+
+只备份有被更动到的数据， 文件系统内没有被变更的数据依旧保持在原本的区块内.
+
+快照必须在 "需要被快照的LV 内的文件无需再次改动的时候 " 再进行建立, 因为就算恢复,也只能恢复到建立快照时的文件内容.
+
+**也可以反向操作, 在快照区胡作非为,然后再把快照区删掉即可,这样既不影响原文件,不用还原. 很方便**
+
+- 创建流程
+
+  - 预计被拿来备份的原始 LV 为 /dev/vbirdvg/vbirdlv 
+
+  - 使用传统方式快照创建, 原始碟为 /dev/vbirdvg/vbirdlv，快照名称为 `vbirdsnap1`，容量 
+
+    为` vbirdvg` 的所有剩余容量 
+
+  - 传统快照区的创建
+
+```bash
+1. 先观察VG 剩余容量有多少.
+$vgdisplay  vbirdvg | grep -i 'free'   #VG
+输出:  Free  PE / Size       26 / 416.00 MiB   #只剩下 416mb 空间了.全部分配给 vbirdsnap1
+
+2.利用 lvcreate 创建 vbirdlv 的快照区，快照被取名为 vbirdsnap1，且给予 26 个 PE
+$lvcreate  -s -l 26  -n vbirdsnap1   /dev/vbirdvg/vbirdlv
+		# -s 选项是创建 snapshot 快照  的意思,   -n 后面接快照区的设备名称 要写完整
+		# -l  后面接的是 PE 个数,用来让快照区使用.
+
+$lvdisplay /dev/vbirdvg/vbirdsnap1         #查看一下创建的状态
+  LV Size 2.50 GiB               # 原始碟，就是 vbirdlv 的原始容量
+  Current LE             160
+  COW-table size 416.00 MiB      # 这个快照能够纪录的最大容量!
+  COW-table LE 26
+  Allocated to snapshot 0.01%     # 目前已经被用掉的容量!
+
+$lvdisplay /dev/vbirdvg/vbirdsnap1
+
+这个 /dev/vbirdvg/vbirdsnap1 快照区就被创建起来了.而且他的 VG 量与原本的 /dev/vbirdvg/vbirdlv 相同, 因为 vbirdsnap1 就是用来备份 /dev/vbirdvg/vbirdlv  的快照区.
+
+就算挂载 vibrdsnap1 , 那么 ,里面的内容和 vbirdlv 是相同的. (但是UUID也相同)
+			(UUID相同的挂载方式:  $mount -o nouuid  /dev/vbirdvg/vbirdsnap1   /srv/snapshot1 )
+```
+
+```bash
+利用快照复原系统
+-  要复原的数据量 不能够高于快照区所能负载的实际容量. 否则快照会失效
+
+
+1. 利用快照区将原本的 filesystem 备份，我们使用 xfsdump 来处理!
+$mount -o nouuid /dev/vbirdvg/vbirdsnap1  /srv/snapshot1    #先进行快照区挂载
+$xfsdump -l 0 -L lvm1 -M lvm1 -f /home/lvm.dump   /srv/snapshot1
+			#这个时候就会有一个备份数据, 就是 /home/lvm.dump , (绝对不要格式化)
+$umount /srv/snapshot1        #内容已经备份出来了,就不需要它了
+
+$lvremove   /dev/vbirdvg/vbirdsnap1      #删除快照区 vbirdsnap1
+
+$umount   /srv/lvm     #卸载 被vbirdsnap1 所备份的LV区
+
+$mkfs.xfs -f /dev/vbirdvg/vbirdlv      #强制格式化
+
+$mount /dev/vbirdvg/vbirdlv /srv/lvm     #挂载
+
+$xfsrestore -f /home/lvm.dump -L lvm1 /srv/lvm   #XFS 文件系统还原, -f备份文件 -L还原目录
+
+#还原完成
+```
+
+
+
+### LVM 关闭
+
+如果你还没有将 LVM 关闭就直接将那些 partition 删除或转为其他用途的话，系统 是会发生很大的问题的
+
+1. 先卸载系统上面的LVM文件系统(包括快照与所有LV);
+2. 使用`lvremove`移除LV;
+3. 使用`vgchange  -a  n   VGname ` 让  VGname  这个VG不具有Active的标志; 
+4. 使用`vgremove`移除VG:
+5. 使用`pvremove`移除PV;
+6. 最后，使用fdisk修改ID回来啊! 
+
+```bash
+首先进行卸载 已经挂载的 LV 分区
+$umount /srv/lvm  /srv/thin  /srv/snapshot1
+
+$lvs vbirdvg 
+  vbirdlv    vbirdvg owi-a-s---   2.50g                                                           
+  vbirdsnap1 vbirdvg swi-a-s--- 416.00m            vbirdlv 0.01                                   
+  vbirdthin1 vbirdvg Vwi-a-tz--  10.00g vbirdtpool         4.99                                   
+  vbirdtpool vbirdvg twi-aotz--   1.00g                    49.92  11.82 
+  # 一定要注意分辨删除的属性,因为 vbirdthin1 是建立在 vbirdvg/vbirdtpool 之上的,所以要先删除  vbirdthin1
+
+#下面删除3个 LV分区 (vbirdthin1(自动调整) ,vbirdtpool(容量池) , vbridlv(普通LV))
+$lvremove /dev/vbirdvg/vbirdthin1  /dev/vbirdvg/vbirdtpool
+$lvremove /dev/vbirdvg/vbirdlv
+
+
+$vgchange -a n vbirdvg   #关闭 VG
+
+$vgremove vbirdvg    #删除VG
+
+$pvremove  /dev/sda{4,5,6,7}       #移除这些 partition 的PV属性
+
+#到这里已经删除完成了,  但是最好还是将  sad{4,5,6,7,8} 的磁盘ID(8E00) 更改一下比较好.
+		$gdisk /dev/sda            #进入 t 参数, 改成 8300 即可
+```
 
 
 
 
 
+### LVM相关指令汇总
+
+| 任务                | PV阶段    | VG阶段    | LV阶段              | filesystem(xfs)    | filesystemEXT4     |
+| ------------------- | --------- | --------- | ------------------- | ------------------ | ------------------ |
+| 搜寻(scan)          | pvscan    | vgscan    | lvscan              | lsblk,   blkid     | lsblk,   blkid     |
+| 创建(create)        | pvcreate  | cgcreate  | lvcreate            | mkfs.xfs           | mkfs.ext4          |
+| 列出(display)       | pvdisplay | vgdisplay | lvdisplay           | df,  mount         | df, mount          |
+| 增加(extend)        |           | vgextend  | lvextend (lvresize) | xfs_growfs         | resize2fs          |
+| 减少(reduce)        |           | vgreduce  | lvreduce (lvresize) | 不支持             | resize2fs          |
+| 删除(remove)        | pvremove  | vgremove  | lvremove            | umount, 重新格式化 | umount, 重新格式化 |
+| 改变容量(resize)    |           |           | lvresize            | xfs_growfs         | resize2fs          |
+| 改变属性(attribute) | pvchange  | vgchange  | lvchange            | /etc/fstab,remount | /etc/fatab,remount |
 
 
 
+## 小结
 
+- Quota 可公平的分配系统上面的磁盘容量给使用者;分配的资源可以是磁盘容量 (block)或可创建文件数量(inode);
+- Quota 的限制可以有 soft/hard/grace time 等重要项目
+- Quota 是针对整个 filesystem 进行限制，XFS 文件系统可以限制目录! 
+- Quota 的使用必须要核心与文件系统均支持。文件系统的参数必须含有 usrquota, grpquota, prjquota
+- Quota 的 xfs_quota 实作的指令有 report, print, limit, timer... 等指令;
+- 磁盘阵列 (RAID) 有硬件与软件之分，Linux 操作系统可支持软件磁盘阵列，通过 mdadm 套件来达成 ;
+- 磁盘阵列创建的考虑依据为“容量”、“性能”、“数据可靠性”等; 
+- 磁盘阵列所创建的等级常见有的 raid0, raid1, raid1+0, raid5 及 raid10
+- 硬件磁盘阵列的设备文件名与 SCSI 相同，至于 software RAID 则为 /dev/md[0-9] 
+- 软件磁盘阵列的状态可借由 /proc/mdstat 文件来了解; 
+- LVM 强调的是“弹性的变化文件系统的容量”;
+- 与 LVM 有关的元件有: PV/VG/PE/LV 等元件，可以被格式化者为 LV
+- 新的 LVM 拥有 LVM thin volume 的功能，能够动态调整磁盘的使用率!
+- LVM 拥有快照功能，快照可以记录 LV 的数据内容，并与原有的 LV 共享未更动的数据， 备份与还原就变的很简单;
 
+- XFS 通过 xfs_growfs 指令，可以弹性的调整文件系统的大小 
 
+```bash
+在RAID5 的磁盘上面构建 LVM 系统 ,  创建流程.
 
+#RAID
+$gdisk  /dev/sda          #5个1G 分区,转换成 FD00 ,Linux RAID 分区 . (sda4 5 6 7 8 )
 
+$partprobe   #更新核心分区列表
+
+$mdadm --create /dev/md0 --auto=yes --level=5 --chunk=256 --raid-devices=4 \
+   --spare-devices=1 /dev/sda{4,5,6,7,8}      #5个盘组成 RAID5 ,1个 spare预留盘, 总容量3G
+
+$partprobe   #更新核心分区列表
+
+$gdisk  /dev/md0     #使用n 进行分区创建, ID是 8E00 (Linux LVM), 会生成 /dev/md0p1 设备文件
+
+$partprobe   #更新核心分区列表
+
+$mdadm --detail /dev/md0 | grep  -i 'UUID'       #获得RAID 的UUID ,准备配置开机挂
+			输出:  UUID : ea659ae2:7d5f42a5:76c04a89:58d4a0b8
+
+$vim /etc/mdadm.conf
+		写入: ARRAY  /dev/md0  UUID="ea659ae2:7d5f42a5:76c04a89:58d4a0b8"
+
+#LVM
+$pvcreate /dev/md0p1     #创建 PV
+
+$vgcreate -s 256k md0p1vg  /dev/md0p1   #创建 VG ,PE大小和 RAID chuunk 保持一致最好.
+
+$lvcreate -L 1.5G -n    md0p1vg    #创建 LV ,大小是 1.5G. (/dev/md0p1vg/md0p1lv)
+
+#创建文件系统
+$mkfs.xfs /dev/md0p1vg/md0p1lv       #格式化成为 xfs 文件系统
+
+$mkdir /srv/lvm ; mount /dev/md0p1vg/md0p1lv  /srv/lvm/      #挂载
+
+$df   -Th  /srv/lvm  
+	输出:  
+  	文件系统                    类型   容量   已用  可用   已用%    挂载点
+   /dev/mapper/md0p1vg-md0p1lv xfs   1.5G   33M  1.5G    3%  /srv/lvm
+
+#开机自动挂载
+$blkid  /dev/md0p1vg/md0p1lv    #找到UUID , 这里找的内容不一样,一定要注意
+		输出: UUID="e0f2ae66-f1f9-4cbd-9a8f-eb0bf306963b" TYPE="xfs" 
+$vim /etc/fstab
+		写入: UUID=e0f2ae66-f1f9-4cbd-9a8f-eb0bf306963b /srv/lvm   xfs   defaults  0 0
+
+#测试,是否配置文件正确
+$umount  /srv/lvm       #先卸载
+$mount -a               #根据 /etc/fstab 配置文件进行自动挂载.
+$df -Th /srv/lvm        
+输出:  文件系统                    类型  容量  已用  可用 已用% 挂载点
+      /dev/mapper/md0p1vg-md0p1lv xfs   1.5G   33M  1.5G    3% /srv/lvm
+  #没有问题了.
+  
+
+#删除并关闭 LVM 和 RAID5
+$vim /etc/fstab            #删除掉写入的相关配置
+$vim /etc/mdadm.conf       #同样删除掉相关配置.
+$lvremove /dev/md0p1vg/md0p1lv         #删除 LV 分区
+$vgchange -a n md0p1vg      #关闭 VG 
+$vgremove md0p1vg           #删除VG
+$pvremove  /dev/md0p1       #移除这些 partition 的PV属性
+$gdisk  /dev/md0            #将 md0 中的 md0p1 分区删除 
+	  #到这里 LVM  已经删除完成了, 接下来 删除RAID
+$dd if=/dev/zero  of=/dev/md0  bs=1M  count=50    #覆盖 超级区块
+$mdadm  --stop  /dev/md0       #这样就关闭了 RAID, 而且 md0 也会消失.
+$cat /proc/mdstat              #查看是否删除成功了.
+
+#还剩下 /dev/sda 4 5 6 7 8 这5个分区了, 可以删除
+$gdisk /dev/sda
+```
 

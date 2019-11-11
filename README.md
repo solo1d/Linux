@@ -138,7 +138,7 @@ $iconv  -f 原本编码  -t 新编码  文件名  [-o  新文件名]
 $iconv  -f big5 -t utf8  file1  -o  unt.file
 
 范例2: 将繁体字文件 a(utf8) 转换成简体字 b(utf8). 
-$iconv -f utf8 -t big5 a | iconv -f big5 -t gb2312 | iconv -f gb2312 -t utf8 -o b
+$iconv -f utf8 -t big5 输入文件 | iconv -f big5 -t gb2312 | iconv -f gb2312 -t utf8 -o 输出文件
     #先转成 big5, 再转成 gb2312  再转成 utf8 .
 ```
 

@@ -30,6 +30,7 @@ Linux 调度就是通过 crontab 与 at 这两个东西来运作的.
 首先要开启 atd  这个服务才可以进行 调度.
 $systemctl restart atd   # 重新启动 atd 这个服务
 $systemctl enable atd   # 让这个服务开机就自动启动
+$systemctl disable atd   #取消这个服务的开机启动
 $systemctl status atd   # 查阅一下 atd 目前的状态
 输出:
 ● atd.service - Job spooling tools

@@ -227,9 +227,115 @@ $pstree [-A|U]  [-up]
 |19|SIGSTOP|暂停一个进程的执行,相当于[ctrl+z]|
 ```bash
 $kill  -信号号码  PID
+$kill  -信号号码  @N
+对后面PID程序或bash后台进程发送一个信号.
 
-对后面PID程序的发送一个信号.
+范例: 让 rsyslogd 这个服务进程 重新读取自己的配置文件.
+$kill -1 $(ps aux | grep 'resyslogd' | grep -v 'grep' | awk '{print $2}')
+
+$tali -5 /var/log/messages      #参看登陆文件的内容,来确认是否重启的成功.如果有下面这个一行就代表成功了
+Nov 15 21:24:37 raspbian liblogging-stdlog:  [origin software="rsyslogd" swVersion="8.24.0" x-pid="360" x-info="http://www.rsyslog.com"] rsyslogd was HUPed
+```
+
+```bash
+$killall  -信号  [-iIe] [进程名]     #不给信号参数的话，默认是 -9
+选项与参数:
+-i  :互动式提示模式
+-e  :表示后面要接的是进程名, 但是进程名不可以超过15个字符.
+-I  :后面的进程名称(可以含参数) 忽略大小写.
+
+注意:命令会终止所有和进程名称相同的进程.
+
+
+范例: 强制终止所有 httpd 启动程序
+$killall -9   httpd 
+```
+
+### 进程的执行顺序(优先级)
+如果很多的休眠(sleeping)进程被同时唤醒,那么操作系统会考虑 **进程的优先执行序(Priority)** 与 **CPU调度**.
+
+#### Priority 与 Nice 值
+CPU一秒钟的指令执行次数的计算方式 : **`(CPU时钟频率*核心线程数)/6`**,(这个6是一条指令会分成6步被CPU执行,包括:取指,译码,执行,访存,写回,PC值更新)
+**Linux 会给予进程一个 `执行优先级(priority,PRI)`,这个PRI值越低代表优先级越高.这个PRI是核心动态调整的,使用者无法直接调整PRI值的.**
+**PRI 的默认值一般是80**
+可以通过 **`ps -l`** 指令来得到每个进程的PRI与NI(Nice) 这两个值.
+**可以通过调整 NI(nice) 的值来达到修改进程执行优先级的目的,这个值越低越好**
+- 新PRI = PRI(旧) + Nice
+  - Nice的值可以影响PRI值,但是最终的PRI还是要经过系统操作系才会决定
+  - Nice值的范围是 -20 到 19 ,使用 **`renice`指令**
+    - 但是一般用户只可以调整 0到19 ,只有root 才可以调整 -20到19
+	- 一般用户只可以让Nice的值变大,却不可以减少Nice的值.
+**还可以通过在执行进程前就设定好 Nice 的值**
+
+#### nice  将即将要执行的命令给予设定的 Nice 值
+```bash
+$nice [-n 数字]  命令    
+选项与参数:
+-n   :后面接一个Nice值,范围是 -20到19
+
+范例: 用 root 创建一个 Nice值为 -19的 vim 进程,并且扔到 bash 后台.
+$nice -n -19 vim &
+$ps -l
+输出:
+ S   UID   PID  PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
+ 4 T     0 24489 20696  0  61 -19 -  2877 signal pts/0    00:00:00 vim
+#NI 值变化了,PRI也跟着变化了, 因为是使用root执行的,所以才会给这种权限
+```
+#### renice  将已存在的进程 Nice值  进行重新调整 (top 也可以调整)
+```bash
+$renice  [数字]  进程的PID   
+
+范例: 找出自己的 bash 的 PID ,并将该 PID 的 nice 调整到 -5
+$renice -5 $(ps |grep 'bash' |awk '{print $1}' )
+输出:
+20696 (process ID) old priority 0, new priority -5
+renice: failed to get priority for 27719 (process ID): No such processa
+#修改成功
+```
+
+### 系统资源的观察
+
+##### 内存查看 free
+```bash
+$free  [-h] [-t]  [-s N -c N]
+选项与参数:
+-h  :系统自动指定显示出来的容量单位,可以自己指定(-g -m -b -k)
+-t  :显示实体内存与 swap(交换分区) 的总量
+-s  :可以让系统每几秒钟输出一次,不间断的意思.
+-c  :与-s 一起使用,让 free列出多少次(相当于循环次数)
+
+范例:显示系统内存和swap 使用信息
+$free -t -m
+			  total        used        free      shared  buff/cache   available
+Mem:            955         102         659          16         193         777
+Swap:          1023           0        1023
+Total:         1979         102        1683
+
+#total 是总容量,used是已用容量,free可用容量,
+#shard/buff/cache已用容量中被用作高速缓存的容量,当系统繁忙时,这些空间可被释放,另作他用
+#available释放高速缓存之后的总体可用容量.
+#swap 是虚拟内存交换分区,这块容量是在硬盘上的,性能最差,尽量不要使用,否则增加内存条.
+```
+
+##### 查阅系统与核心的信息  uname
+```bash
+$uname [-asrmpi]
+选项与参数:
+-a  :所有系统相关的信息全部列出,包括下面所有选项的信息
+-s  :系统核心名称,(一般都是 Linux)
+-r  :核心版本 (就是 Linux 核心版本)
+-m  :本系统的硬件名称 (i686 ,x86_64, aarch64 )
+-p  :CPU 的类型, (x86_64, x86 ,arm )
+-i  :硬件平台(ix86)
+```
+
+##### 追踪网络或插槽档 netstat
+```bash
+$netstat    -[atunlp]
 
 
 ```
+
+
+
 

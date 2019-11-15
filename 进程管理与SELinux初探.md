@@ -332,7 +332,7 @@ $uname [-asrmpi]
 ##### 追踪网络或插槽档 netstat
 ```bash
 $netstat    -[atunlp]
-
+选项与参数
 
 ```
 

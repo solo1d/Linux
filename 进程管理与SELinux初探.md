@@ -382,5 +382,241 @@ netstat 字段说明
   - Path    :连接到此 socket 的相关程序的路径,或者是相关数据输出的路径.
 
 ##### 分析核心产生的信息 dmesg 
+显示的系统在开机时产生的硬件侦测信息,以及所有的核心侦测信息 和系统运行过程中核心产生的信息都会记录到**`内存中的某个保护区段`**  `dmesg` 命令可以将这些讯息读取出来.
 
+```bash
+输出所有的核心开机时的信息
+$dmesg  | more     #因为读取出来的信息量太大,所以要使用 more来分页
+
+搜寻开机的时候,硬盘的相关信息
+$dmesg | grep -i sda
+[    1.315625] mmcblk0: mmc0:aaaa SL32G 29.7 GiB
+[    1.317360] sda : sda1 sad2 
+[    1.332955] EXT4-fs (sda1): mounted filesystem with ordered data mode. Opts: (null)
+[    3.071890] EXT4-fs (sda2): re-mounted. Opts: (null)
+```
+
+##### 侦测系统资源变化  vmstat
+vmstat 可以侦测 CPU,内存,磁盘,输入输出状态 等等.
+```bash
+$vmstat [-a] [延迟 [总侦测次数]]      #CPU/内存等信息
+$vmstat [-fs]        #只显示内存相关
+$vmstat [-S 单位]    #设置显示数据的单位
+$vmstat [-d]         #显示磁盘有关信息
+$vmstat [-p 分区]    #也是与磁盘有关
+选项与参数:
+-a  :使用 inactive/active(活跃/不活跃) , 取代 buffer/cache 的内存输出信息
+-f  :开机到目前为止,系统创建的进程数(fork)
+-s  :将一些事件(开机至目前为止) 导致内存变化情况列表说明
+-S  :后面接单位,当现实的数据有单位, 例如 K/M/G
+-d  :列出磁盘的读写总量统计
+-p  :后面列出分区,可显示该分区的读写总量统计表
+
+
+范例: 统计目前主机 CPU 状态， 每秒一次，共计3次, 显示容量单位是 M
+$vmstat 1 3 -S M
+输出:
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+2  0      0    141     51    663    0    0     1     4    7   99  0  1 99  0  0
+0  0      0    141     51    663    0    0     0    56 8195  439  0  0 99  0  0
+0  0      0    141     51    663    0    0     0     8 8419  584  1  1 99  0  0
+
+# procs 进程字段: r 等待运行中的进程数量,b 不可被唤醒进程数量,越多系统越忙
+# memory内存字段: swpd 虚拟内存被使用容量，free 未被使用的内存容量,buff用于缓冲内存
+#                 cache 用于高速缓存内存.
+# swap 内存交换分区: si 由磁盘中将进程取出的量,so 由于内存不足而将没用到的进程写入到磁盘的swap容量
+#                     如果si/so 的数值过大,表示内存的数据需要在磁盘与内存之间传来传去,性能差
+#io 磁盘读写 : bi 如磁盘写入的区块数量, bo 写入到磁盘去的区块数量, 如果这个值过高 表示系统I/O很忙碌
+#system 系统: in 每秒被中断的进程次数, cs 每秒钟进行的事件切换次数, 数值越大 表示系统与周边设备的沟通
+#             非常频繁,周围设备包括 磁盘,网卡,时钟.
+#cpu  : us 非核心层的CPU使用状态, sy 核心层所使用的CPU状态, id 闲置的状态, wa 等待 I/O 所耗费的CPU状态,
+#       st 被虚拟机(virtual machine)所盗用的CPU使用状态.
+
+
+范例: 系统上面所有的磁盘的读写状态
+$vmstat  -d
+输出:
+disk- ------------reads------------ ------------writes----------- -----IO------
+       total merged sectors      ms  total merged sectors      ms    cur    sec
+ram0       0      0       0       0      0      0       0       0      0      0
+ram1       0      0       0       0      0      0       0       0      0      0
+loop0      0      0       0       0      0      0       0       0      0      0
+loop1      0      0       0       0      0      0       0       0      0      0
+sda       4884   3300  369621   63575 119158  77519 2479817 17374813   0     1593
+```
+
+
+## 特殊文件与进程
+### 具有SUID/SGID 权限的指令执行状态
+**SUID 的权限其实与进程的相关性非常大.**
+- SUID 权限仅对二进制程序(binary program) 有效
+- 执行者对于该程序需要具有 x 的可执行权限
+- 本权限仅在执行该程序的过程中有效 (run time)
+- 执行者将具有该程序拥有者(owner) 的权限
+**SUID的权限生效是由`具有该权限的程序被触发` 从而变成进程的那个时候**
+
+### /proc/*  目录代表的意义
+**因为进程是在内存中,而内存当中的数据又都是写入到 /proc/* 目录下的,所以可以直接观察/proc这个目录中的文件**
+**基本上主机上面的各个进程的PID都是以目录的形态存在于/proc 当中的,也有是用进程名命名的**
+开机所执行的第一支进程`systemd` 它的PID是1,这个PID的所有相关信息都写在 /proc/1/* 当中
+
+```bash
+$ls -lh /proc
+输出:
+dr-xr-xr-x   8 root        root         0 Jan  1  1970 1
+dr-xr-xr-x   8 root        root         0 Nov 16 14:17 10
+...中间省略
+
+
+观察PID为1 的 systemd 这个进程的相关信息 
+$ls /proc/1
+-rw-r--r-- 1 root root 0 Nov 16 15:19 autogroup
+-r--r--r-- 1 root root 0 Nov 16 14:17 cmdline    #这个进程被启动的字符串
+-r-------- 1 root root 0 Nov 16 14:17 environ    #这个进程的环境变量内容
+...省略
+
+$cat /proc/1/cmdline
+输出:
+/sbin/init
+
+```
+|文件名|文件内容|
+|-|-|
+|/proc/cmdline|载入内核时所下达的相关指令与参数,可了解指令是如何启动的|
+|/proc/cpuinfo|本机CPU信息,包括频率,类型与运算功能等|
+|/proc/devices|这个文件记录了系统各个主要设备的主要设备代号,与mknod有关|
+|/proc/filesystems|目前系统已载入的文件系统|
+|/proc/interrupts|目前系统上面的 IRQ分配状态|
+|/proc/ioports|目前系统上面各个设备所配置的I/O位址|
+|/proc/kcore|这个就是内存大小,不要读|
+|/proc/loadevg|1,5,15分钟的平均负载记录|
+|/proc/modules|目前Linux已载入的模块列表,就是驱动列表|
+|/proc/swaps|记录了各个分区的挂载点|
+|/proc/partitions|使用 fddisk -l 会出现目前所有的分区信息 都会在这里记录|
+|/proc/uptime|时间信息|
+|/proc/version|核心版本,就是uname -a 显示的内容|
+|/proc/bus/*|一些总线设备,还有usb 的设备记录|
+
+
+#### 查询已打开文件或已执行进程打开的文件
+##### fuser  借由文件系统找出正在使用该文件的进程
+可以解决 卸载分区时出现的 `device is busy`总线忙 的问题,可以找到正在被使用的文件
+
+```bash
+$fuser  [-umv] [-k [i] [-signal]] file/dir
+选项和参数
+-u  :除了进程的PID之外，同时列出该进程的拥有者
+-m  :后面接的那个文件名会主动的上提到该文件系统的最顶层,对 umount 执行不成功 很有效
+-v  :列出每个文件与进程还有指令的完整相关性
+-k  :找出该 文件/目录 的PID , 并试图以 SIGKILL 这个讯号给予 PID
+-i  :必须与 -k 配合使用, 在删除PID之前会先询问使用者的意思.也就是交互
+-signal :信号 -1 -5 之类的,默认是 -9  kill
+
+范例:找出目前所在目录的使用 PID/使用账号/权限 为何
+$fuser -uk .
+          USER        PID  ACCESS   COMMAND
+/home:    pi        25516  ..c..    (pi)bash
+#说明是 有25516这个PID进程,该进程属于pi的,且指令为bash 
+#ACCESS 项目代表的意义为:
+#	   c: 此程序在当前目录下 (非次目录)
+#	   e:可被触发为执行状态
+#	   f:是一个被打开的文件   (重要)
+#      r:代表顶层目录
+#      F:该文件被打开了,不过在等待回应中 (重要)
+#	   m:可能为分享的动态函数库
+
+
+范例: 找到所有使用到 /proc 这个文件系统的进程
+$fuser  -uv /proc
+/proc: 	   root     kernel   mount  (root)/proc
+		   rtkit      768   .rc..   (rtkit)rtkit-daemon
+	#进程数量很少,表示不是很繁忙
+
+$fuser  -mvu  /proc
+#这里会显示出很多进程, 省略了, 其实这些进程都在对 /proc 这个文件系统进程存取
+
+
+范例:找出所有使用到 /home 这个文件系统的进程
+$fuser  -muv /home
+	#当这条指令有输出结果的时候,就代表无法使用 umount 来卸载 /home 文件系统
+```
+
+##### 列出被进程所打开的文件 文件名  lsof
+```bash
+$lsof  [-aUu] [+d]
+选项与参数
+-a  :多项数据需要 "同时成立" 才显示出结果时.
+-U  :仅列出 Unix like 系统的 socket套接字 文件类型
+-u  :后接username ,列出该使用者相关程序所打开的文件
++d  :后面接目录, 亦找出某个目录下面已经被打开的文件
+
+范例: 列出目前系统上面所有已经被打开的文件与设备
+$lsof       #数据太多了 , 不展示了
+
+
+范例:仅列出关于 root 的所有程序打开的 socket 文件
+$lsof  -u root -a -U
+COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF   NODE NAME
+systemd       1 root   13u  unix 0xffffffccbb0a0000      0t0   9223 /run/systemd/notify type=DGRAM
+systemd       1 root   14u  unix 0xffffffccbb0a0480      0t0   9224 /run/systemd/cgroups-agent type=DGRAM
+systemd       1 root   15u  unix 0xffffffccbb0a0900      0t0   9225 type=DGRAM
+
+
+范例: 列出目前系统上面所有的被启动的周边设备
+$lsof +d /dev 
+
+
+范例:找出属于 root 的bash 这个进程所打开的文件
+$lsof -u root | grep 'bash'
+```
+
+
+#####找出某个正在执行的进程的PID  pidof
+```bash
+$pidof [-sx]  程序名      #注意,是程序名  不是进程
+选项与参数:
+-s   :仅列出一个 PID 而不列出所有PID
+-x   :同时列出该 程序名 可能的 PPID 的那个进程的PID
+
+范例: 找出目前系统上面 systemd 以及 rsyslogd 者两个进程的 PID
+$pidof  systemd  rsyslogd
+输出:
+1  253
+```
+
+
+## SELinux 初探
+SELinux 就是 安全强化Linux , 是整合到核心的一个模块.
+SELinux 是在对进程,文件等细部权限设置依据的一个核心模块.
+SELinux 是通过MAC的方式来管控程序的, 它控制的主体是 程序,而目标则是该进程能否读取'文件资源'.
+**SELinux 重点在保护进程读取文件系统的权限**
+- SELinux 运行模式
+  - 主体(Subject) :SELinux主要想管理的就是进程.
+  - 目标(Object)  :主体进程能够存取的'目标资源'一般都是文件系统,目标项目和文件系统划等号
+  - 政策(Policy)  :依据服务来定制基本的存取安全性政策.
+    - targeted  针对网络服务限制较多,针对本机限制较少,这是默认政策
+	- minimum   有target修订而来, 针对选择的进程来保护
+	- mls       完整的SELinux 限制,限制方面很严格.
+  - 安全性文本 (security context) :主体与目标的安全性文本必须一致才能够顺利存取.
+    - 安全性文本是存放在 inode 内的.
+
+```bash
+SELinux 根据启动与否共有三种模式:
+	enforcing : 强制模式.表示SELinux运行中,并已经正确的开始限制 domain/type 了.
+	permissive :宽容模式,SELinux运行中只会有警告信息,并不会世纪限制
+	disabled   :关闭, SELinux 并没有运行
+```
+
+
+
+## 小结
+- 程序(program) 通常为 binary program(二进制程序), 放置在存储媒体中.为实体文件的型态存在
+- 进程(process) 程序触发后,执行者的权限与属性,程序的程序码与所需数据等 都会被载入内容中,操作系统给予这个内存内的单元一个唯一识别码(PID)。
+- 进程彼此之间有相关性,有父子进程之分, Linux所有进程的父进程都是 init 这个 PID为1的进程
+- 常驻内存并提供功能和服务使用者的各项任务 的进程, 通常被称为 服务(services)
+- 进程间的互相通信主要是通过 kill 这个指令在处理
+- nice 的给予可以有 : nice ,renice ,top 等指令. (提高进程的执等级)
+- vmstat 为相当好用的系统资源使用情况观察指令
+- SELinux当初的设计是为了避免使用者资源的误用,而SELinux使用的是MAC委任式存取设置.
 

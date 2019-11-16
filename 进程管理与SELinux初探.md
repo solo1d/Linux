@@ -329,13 +329,58 @@ $uname [-asrmpi]
 -i  :硬件平台(ix86)
 ```
 
-##### 追踪网络或插槽档 netstat
+##### 追踪网络或套接字 netstat
+
 ```bash
 $netstat    -[atunlp]
 选项与参数
+-a   :列出目前系统上所有的连接,监听(listen),套接字(socket) 数据.
+-t   :列出tcp网络封包数据
+-u   :列出udp网络封包数据
+-n   :以 port 端口号 来显示
+-l   :列出目前正在 监听(listen) 的服务
+-p   :列出该网络服务的进程PID
 
+
+
+范例: 列出目前系统已经创建的网络连接与 unix socket 状态
+$netstat 
+输出:
+Active Internet connections (w/o servers)   #与网络相关的部分
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 bogon:ssh               bogon:43231             ESTABLISHED
+tcp        0    176 bogon:ssh               bogon:53925             ESTABLISHED
+Active UNIX domain sockets (w/o servers)	#本地套接字文件的信息(非网络,用于本地进程间的通信)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ]         DGRAM                    746511   /run/user/1000/systemd/notify
+unix  3      [ ]         DGRAM                    235      /run/systemd/notify
+unix  2      [ ]         DGRAM                    236      /run/systemd/cgroups-agent
+
+
+范例: 找出目前系统上已在监听的网络连接及其PID
+$netstat -tulnp
+Active Internet connections (only servers)
+	Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+	tcp        0      0 0.0.0.0:53              0.0.0.0:*               LISTEN      686/dnsmasq         
+	tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      734/sshd            
+	tcp        0      0 0.0.0.0:445             0.0.0.0:*               LISTEN      1202/smbd      
 ```
+netstat 字段说明
+- Internet connections 网络连接部分
+  - Proto :网络封包协议, 主要是TCP 和 UDP 
+  - Recv-Q:建立socket连接的发送者,连接到远程主机 共复制的 字节数
+  - send-Q:远程主机未确认到的字节数.
+  - Local Address :远程服务器的本地IP和端口(被连接者),bogon表示DNS解析失败,可以通过 who 来获得IP,ssh表示端口22
+  - Foreign Address :远程客户端连接的IP和端口(连接者).
+  - state :连接状态,连接中(ESTABLISED) ,监听(LISTEN)
+- UNIX domain socket  本地套接字的文件信息
+  - Proto   :一般是unix
+  - RefCnt  :连接到此 socket 的进程数量
+  - Flags   :连接标志, 连接成功会显示 [*] ,否则是空 [ ]
+  - Type    :socket套接字存储的类型, 主要需要确认连接的 STREAM(流式)与不需要确认的DGRAM(报文)两种
+  - State   :状态,若为 CONNECTED 表示多个进程间已经创建了连接.
+  - Path    :连接到此 socket 的相关程序的路径,或者是相关数据输出的路径.
 
-
+##### 分析核心产生的信息 dmesg 
 
 

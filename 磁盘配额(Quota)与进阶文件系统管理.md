@@ -35,8 +35,8 @@ quota 就是在回报管理员磁盘使用率以及让管理员管理磁盘使�
     - `容量限制`  或 `文件数量限制` (block  或 inode )
       - 限制 inode 用量 :  可以管理使用者可以创建的"文件数量"
       - 限制 block 用量 :  可以管理使用者磁盘容量的限制, 较常见为这种方式.
-    - **柔性劝导与硬性规定 (soft/hard) **
-      - **会倒数计时的宽限时间 (grace time): **
+    - **柔性劝导与硬性规定 (soft/hard)**
+      - **会倒数计时的宽限时间 (grace time):**
         - 当你的磁盘用量即 将到达 hard 且超过 soft 时，系统会给予警告，但也会给一段时间让使用者自行管理磁盘。 一般默认的宽限时间为七天，如果七天内你都不进行任何磁盘管理，那么 soft 限制值会即刻 取代 hard 限值来作为 quota 的限制 
       - **hard:  表示使用者的用量绝对不会超过这个限制值**
       - **soft:  表示使用者在低于 soft 限值时 (此例中为 400MBytes)，可以正常使用磁盘，**
@@ -324,7 +324,7 @@ $xfs_quota -x -c "remove -p"  /home
 
 ## 软件磁盘阵列  (Software RAID)
 
-磁盘阵列全名是“ Redundant Arrays of Inexpensive Disks, RAID ”，英翻中的意思是:**容错式 廉价磁盘阵列 **
+磁盘阵列全名是“ Redundant Arrays of Inexpensive Disks, RAID ”，英翻中的意思是:**容错式 廉价磁盘阵列**
 
 - RAID-0 (等量模式, stripe):性能最佳 
   - 将数据分隔成等量块, 然后交错的存入所有磁盘.
@@ -614,20 +614,20 @@ LVM 可以整合多个实体 partition 在一起， 让这些 partitions 看起�
 
 还可以在未来新增或 移除其他的实体 partition 到这个 LVM 管理的磁盘当中 
 
-**LVM 的作法是将几个实体的 partitions (或 disk) 通过软件组合成为一块看起来是独立的大磁盘 (VG) ,然后将这块大 磁盘再经过分区成为可使用分区 (LV)， 最终就能够挂载使用了  **
+**LVM 的作法是将几个实体的 partitions (或 disk) 通过软件组合成为一块看起来是独立的大磁盘 (VG) ,然后将这块大 磁盘再经过分区成为可使用分区 (LV)， 最终就能够挂载使用了**
 
-- **(Physical Volume), PV, 实体卷轴 **
+- **(Physical Volume), PV, 实体卷轴**
   - 实际的 partition (或 Disk) 需要调整系统识别码 (system ID) 成为 8e (LVM 的识别码) ,  可以使用 `gdisk` 命令来进行调整.
   - 然后再经过` pvcreate` 的指令将他转成 LVM 最底层的实体卷轴 (PV) ，之后才能够将 这些 PV 加以利用 
-- **(Volume Group), VG, 卷轴群组 **
-  - **所谓的 LVM 大磁盘就是将许多 PV 整合成这个 VG 的东西 , 所以 VG 就是 LVM 组合起来的大磁盘 **
+- **(Volume Group), VG, 卷轴群组**
+  - **所谓的 LVM 大磁盘就是将许多 PV 整合成这个 VG 的东西 , 所以 VG 就是 LVM 组合起来的大磁盘**
   - **最大容量就是 ‘支持PE 的最大个数’.** 在64位Linux 系统上, 基本上没有容量限制.
-- **(Physical Extent), PE, 实体范围区块 **
+- **(Physical Extent), PE, 实体范围区块**
   - LVM 默认使用 4MB 的 PE 区块，而 LVM 的 LV 在 32 位系统上最多仅能含有 65534 个 PE ,因此默认的 LVM 的 **LV** 会有 `4M*65534/(1024M/G)=256G `
   - **PE 是整个 LVM 最小的储存区块**
-  - **文件数据都是借由写入 PE 来处理的,很像 文件系统的 block **
+  - **文件数据都是借由写入 PE 来处理的,很像 文件系统的 block**
   - **调整 PE 会影响到 LVM 的最大容量 (目前已经有没有这限制了)**
-- **(Logical Volume), LV, 逻辑卷轴 **
+- **(Logical Volume), LV, 逻辑卷轴**
   - 最终的 VG 还会被切成 LV，这个 LV 就是最后可以被格式化使用的类似分区的东西.
   -  LV 的大小就与在此 LV 内的 PE 总数有关 
   - LV 的设备文件名通常指定为`“ /dev/vgname/lvname ”`的样式 
@@ -718,7 +718,7 @@ $pvdisplay  /dev/sda4
 
 #### 2.  VG 阶段  
 
-**与 PV 不同的是， VG 的名称是自订的 **
+**与 PV 不同的是， VG 的名称是自订的**
 
 ```bash
 创建 VG 及 VG 相关的指令

@@ -818,7 +818,7 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
 /dev/mapper/centos-swap  swap           swap    defaults                     0 0
 ```
 
-* 配置文件 **`/etc/fstab`**详解:
+* 配置文件 **`/etc/fstab`** 详解:
   * **第一栏:  磁盘设备文件名  /UUID/LABEL name**
     * 这个字段有三个项目,  设备文件名\(/dev/sda3\), UUID, LABEL  等.
     * **`可以使用 $blkid 或 xfs_admin 来查询 UUID.`**
@@ -826,7 +826,7 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
   * **第三栏: 磁盘分区的文件系统**
     * 包括xfs, ext4, vfat, reiserfs , nfs 等
   * **第四栏: 文件系统参数** 
-    *  具体的设置在 **`$mount 命令的 -o`** 选项中, 中间用逗号区分就行**.**
+    *  具体的设置在 **`$mount 命令的 -o`** 选项中, 中间用逗号区分就行
     * 默认给  **`defaults`** 即可
   * **第五栏: 能否被 dump 备份指令作用.** 
     * 目前没什么用, 直接给0 忽略就好.

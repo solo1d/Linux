@@ -153,7 +153,7 @@ $systemctl  isolate  multi-user.target
 范例: 重新获取 图形界面
 $systemctl isolate graphical.target
 ```
-*** 在 service部分用 start/stop/restart 才对,在target项目要用 isolate 才可以.**
+**在 service部分用 start/stop/restart 才对,在target项目要用 isolate 才可以.**
 ```bash
 $systemctl poweroff  #系统关机
 $systemctl reboot    #重新开机

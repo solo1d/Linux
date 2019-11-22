@@ -267,7 +267,7 @@ $usermod -d /home/vbird3 vbird3			  #设置账号的主文件目录
 
 - **使用者的相关数据有:**
   - **使用者账号/密码相关参数**:  `/etc/passwd`  , `/etc/shadow`
-  - **使用者群组相关设置 **:  `/etc/group`  ,  `/etc/gshadow`
+  - **使用者群组相关设置**:  `/etc/group`  ,  `/etc/gshadow`
   - **使用者个人文件数据** :  `/home/username `  , `/var/spool/mail/username`
 
 ```bash
@@ -353,7 +353,7 @@ $chsh -s /bin/bash				#路径要写全 , 修改前最好先使用 -l 来查看�
 
 ## 新增与移除群组
 
-**群组的内容都与这两个文件有关:  `/etc/group`, `/etc/gshadow` **
+**群组的内容都与这两个文件有关:  `/etc/group`, `/etc/gshadow`**
 
 ### groupadd    创建群组
 
@@ -443,7 +443,7 @@ vbird1 $gpasswd -a arod testgroup
 
 ACL 是 `Access Control List(访问控制列表) `的缩写，主要的目的是在提供传统的 owner,group,others 的 read,write,execute 权限之外的细部权限设置 .
 
-ACL 可以针对**`单一使用者，单一文件或目录来 进行 r,w,x 的权限规范`**，对于需要特殊权限的使用状况非常有帮助 
+ACL 可以针对 **`单一使用者，单一文件或目录来 进行 r,w,x 的权限规范`** ，对于需要特殊权限的使用状况非常有帮助 
 
 - 针对下面三个方面来进行权限控制
   - 使用者 (user) :可以针对使用者来设置权限.
@@ -452,9 +452,9 @@ ACL 可以针对**`单一使用者，单一文件或目录来 进行 r,w,x 的�
 
 ### getfacl  和  setfacl
 
-**`getfacl`:取得某个文件/目录的 ACL 设置项目; **
+**`getfacl`:取得某个文件/目录的 ACL 设置项目;**
 
-**`setfacl`:设置某个目录/文件的 ACL 规范。 **
+**`setfacl`:设置某个目录/文件的 ACL 规范.**
 
 ```bash
 $setfacl [-bkRd]  [ { -m | -x } acl参数 ]  目标文件名
@@ -571,7 +571,7 @@ visudo 也是调用 vi 来进行文件 /etc/sudoers 的编辑, 只不过有语�
         - 输入以下两行内容 就可以了:    (可以保证 root 密码不外泄)
           -  `User_Alias  ADMINS = pro1, pro2 `
           - `ADMINS   ALL=(root)   /bin/su  -`
-- **利用 wheel  群组来进行整个群组的成员sudo 权限添加. ** (很危险)
+- **利用 wheel  群组来进行整个群组的成员sudo 权限添加.** (很危险)
   - **还是使用 $visudo 命令,找到  ` %whell   ALL=(ALL)  ALL`  这一行,然后按照下面格式进行添加**
     - %  代表后面跟的是群组.
     - whell   是一个群组,   可以自定义目前已存在的群组, 但是一定要注意权限.

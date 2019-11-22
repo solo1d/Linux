@@ -354,10 +354,148 @@ GRUB_DISABLE_RECOVERY="true"   #取消救援菜单的制作
 ```
 **当 /etc/default/grub 这个文件修改完成之后,相同步到grub.cfg 的话,使用 `$grub2-mkconfig -o /boot/grub2/grub.cfg` 来进行重建,这样才会生效.**
 
-#### 菜单创建的脚本  /etc/grub.d/*
+##### 菜单创建的脚本  /etc/grub.d/*
+`grub2-mkconfig` 命令会去分析 **`/etc/grub.d/`** 里面的文件,后去执行该文件来创建 grub.cfg,也就是抓到Linux的核心.
+- `/etc/grub.d/` 目录的内容
+  - 00_header:  主要在创建初始化的显示项目,包括需要载入的模块分析,屏幕终端机的格式,倒数秒数,菜单是否需要隐藏等等, 大部分在 `/etc/default/grub/` 里面所设置的变量,大概都会在这个脚本当中被利用来重建grub.cfg.
+  - 10_linux: 根据分析 /boot 下面的文件,尝试找到正确的 Linux 的核心与读取这个核心需要的文件系统与参数等,在这个脚本运行后找到并设置到 grub.cfg 当中.
+    - 这个脚本将所有在 /boot 下面的每一个核心都对应到一个菜单,因此核心文件数量越多,开机菜单项目就越多. 
+	  - 如果不想要旧的核心出现在菜单上,那可以通过移除旧核心来处理即可.
+  - 30_os-prober : 这个脚本默认会到系统上找其他的 partition 里面可能含有的操作系统,然后将该操作系统当成菜单来处理.
+    - 如果不想找其他的系统,那么可以在 `/etc/default/grub` 里面加上 **GRUB_DISABLE_OS_PROBER=true**,取消这个文件的运行.
+  - 40_custom :  如果还有其他想自己手动加上去的菜单项目,或者是其他的需求,那么可以在这个文件内补充.
+**也就是说,只可以将新的功能添加到 40_custom 这个文件就可,其他的不要乱动**
+
+**在 `/boot/grub2/grub.cfg` 这个文件中,有个 menuentry 功能,也就是一个菜单,可以选择开机的核心.**
+- 直接指定核心开机
+  - 其实这部分是由`grub2-mkconfig` 去抓取  10_linux 这个脚本直接制作的,不需要关心,如果是想加入额外参数的话,就使用下面的步骤加入:
+    - 先到 `/boot/grub2/grib.cfg` 当中取得想要制作的那个核心的菜单项目,然后将它复制到40_custom 当中.
+	- 然后再到 40_custom 当中,根据需求进行修改即可.
+
+##### 通过chain loader 的方式移交 loader 控制权
+chain loader(开机管理程序的链接) 仅是在将控制权交给下一个 boot loader 而已,不需要 grub2 认识与找出 kernel 的文件名, 只是将 boot 的控制权交给下一个boot sector(启动扇区) 或 MBR内的boot loader 而已.
+
+- chain loader 只需要设置两个内容就可以了
+  - 一个是预计前往的 boot sector 所在的分区代号
+  - 另一个是设置 chain loader  在那个分区的 boot sector(第一个扇区)上
+
+```bash
+假设 /dev/sda2 是 windows7系统, 现在需要额外两个开机选项,一个是取得win7的开机菜单,一个是回到MBR的默认环境.
+win7在/dev/sda2 就是 hd0,msdos2 , MBR就是 hd0
+
+$vim  /etc/grub.d/40_custom
+#添加如下内容
+menuentry 'Go to Windows 7' --id 'win7' {
+	insmod chain
+	insmod ntfs
+	set root=(hd0,msdos2)
+	chainloader +1
+}
+menuentry 'Go to MBR' --id 'mbr' {
+	insmod chain
+	set root=(hd0) 
+	chainloader +1
+}
+
+#添加完成后进行重建 /boot/grub2/grub.cfg
+$grub2-mkconfig -o /boot/grub2/grub.cfg
+
+#如果想把win7变成默认开机选项,那么一可以在 /etc/default/grub 当中设置 "GRUB_DEFAULT=win7" 然后再grub2-mkconfig即可.
+#win7 表示的是 --id 的内容,不需要计算 menuentry 的顺序.
+```
+
+#### initramfs 的重要性与创建心 initramfs 文件
+**initramfs 的目的在于提供开机过程中所需要的最重要核心模块,以让系统开机过程可以顺利完成,主要以文件系统及硬盘模块(USB,SATA)为主.**
+**initramfs 可以将 `/lib/modules/`内的'开机过程当中一定需要的模块'包成一个文件,然后在开机时通过主机的INT 13 硬件功能将该文件读出来解压缩,并且 initramfs在内存会仿真成根目录,由于此虚拟文件系统(initial RAM Disk) 主要包括磁盘与文件系统的模块,因此核心草能认识实际的磁盘,能够进行实际根目录的挂载.**
+**
+SATA 硬盘是使用SCSI 模块来驱动的.
+
+  - 根目录所在文件系统为 LVM,RAID 等特殊格式
+  - 根目录所在文件系统为非传统 Linux 认识的文件系统时
+  - 其他必须要在核心载入时提供的模块
 
 
+**使用 dracut 或者 mkinitrd 以及 dracut 来制作 initramfs 文件**
+```bash
+$dracut  [-fv] [--add-drivers 列表] initramfs文件名 核心版本
+选项与参数:
+-f  :强迫编译出 initramfs ,如果 initramfs文件已存在,则覆盖掉旧文件
+-v  :显示 dracut 的运行过程
+--add-drivers  :在原本的默认核心模块中,增加某些你想要的模块, 
+                模块位于核心所在目录/lib/modules/$(uname -r)/kernel/*
+initramfs文件名  :就是你需要的文件名,开头最好就是 initramfs,后面接版本与功能
+核心版本         :目前运行中的核心版本,也可以收到输入其他不同版本 $(uname -r)
+
+其他选项
+  --modules   :将dracut 所提供的开机所需模块(驱动模块)载入,可用模块在 /usr/lib/dracut/modules.d/ 目录内.
+  --gzip | --bzip | -xz  :尝试使用哪一种压缩方式来进行 initramfs 压缩,默认使用gzip
+  --filesystems  :加入某些额外的文件系统支持
 
 
+范例: 以 dracut 的默认功能创建一个 initramfs 虚拟硬盘文件
+$dracut  -v  initramfs-test.img  3.10.0-229.el7.x86_64     #内核版本可一通过$(uname -r)来获得
+
+范例: 额外加入 e1000e 网卡驱动与 ext4/nfs 文件系统在新的 initramfs 内
+$dracut -v --add-drivers "e1000e"  --filesystems "ext4 nfs"  initramfs-new.img  $(uname -r)
+```
 
 
+### 测试与安装 grub2
+**首先,必须使用 grub-install 将一些必要的文件复制到/boot/grub2 里面去**
+```bash
+$grub2-install  [--boot-directory=DIR]  INSTALL_DEVICE
+选项与参数:
+--boot-directory=DIR  :DIR为实际目录,使用 grub2-install 默认会将grub2所有文件都复制到/boot/grub2/* 内
+                       如果想复制到其他目录与设备区,那么就得使用这个参数了
+INSTALL_DEVICE   安装的设备代号
+
+
+范例: 将 grub2 安装在目前系统的 MBR 下面, 我的系统为 /dev/sda
+$grub2-install /dev/sda
+#这个时候 /boot/grub2 内的文件应该都更新了.
+# 但是 我们并没有配置文件,需要自己创建.
+
+#注意 : 如果填的是 /dev/sda 那么grub2会将loader写入MBR中, 
+        如果填的是 /dev/sad1  那么会提示并不支持该文件系统,这个时候需要强制写入
+$grub2-install --force --recheck --skip-fs-probe  /dev/sad1
+
+在这之后,将一些开机配置写到 /etc/grub.d/40_custom 中
+$vim /etc/grub.d/40_custom
+加入的内容:
+menuentry 'Goto MBR' {
+	insmod chain
+	insomd part_gpt      #GPT分区格式的磁盘
+	set root=(hd0)
+	chainloader +1
+}
+menumentry 'Goto /dev/sad1' {
+	insmod chain
+	insmod part_gpt
+	set root=(hd0,gpt4)
+	chainloader +1
+}
+```
+- 总结
+  - 如果是其他 boot loader 转成grub2时,的先使用 grub2-install 安装 grub2**配置文件**
+  - 如果安装到partition(分区)时,可能需要加上额外的很多参数才能够顺利安装上去(强制)
+  - 编辑 /etc/default/grub 及 /etc/grub.d/* 这几个重要的配置文件
+  - 使用 grub2-mkconfig -o /boot/grub2/grub.cfg 来创建**开机的配置文件**
+
+
+## 小结
+- 开机流程: BIOS ,MBR, Loader , kernel + initramfs , systemd 等流程
+  - loader 具有 : 提供开机菜单,载入核心文件,转交控制权给其他 loader 等功能.
+  - boot loader(开机管理程序) 可以安装在 MBR或者是每个分区的 boot sector(启动扇区) 区域中
+  - initramfs 可以俄提供核心在开机过程中所需要的最重要的模块,通常与磁盘以及文件系统有关的模块
+  - systemd 的配置文件主要来自 `/etc/systemd/system/default.target` 项目.
+- 额外的设备与模块对应,可写入 `/etc/modprobe.d/*.conf` 中.
+- 核心模块(驱动程序) 的管理可使用ismod, modinfo, rmmod, insmod, modprobe 等指令.
+- `modprobe`主要参考 `lib/modules/$(uname -r)/modules.dep` 的设置来载入与卸载核心.
+- grub2 的配置文件与相关文件系统定义文件大多放置在 `/boot/grub2` 目录中,配置文件名为 grub.cfg
+- grub2 对磁盘的代号设置与 Linux不通, 主要通过侦测的顺序来给予设置,如(hd0) 及 (hd0,1) 等
+- `grub.cfg` 内的每个餐带都与 menuentry 有关,而直接指定核心开机时,至少需要 linux16 及 initrd16 两个项目.
+- grub.cfg 内设置 loader 控制权移交时,最重要者为 chainloader +1 这个项目
+- 若想要重建 initramfs(虚拟文件系统), 可使用 dracut 或 mkinitrd 处理
+- 重新安装 grub2 到 MBR 或 boot sector 时,可以利用 `grub2-install` 命令来处理
+- 若想要进入救援模式,可于开机菜单过程中,在linux16的项目后面加入 'rd.break' 或 'init=/bin/bash' 等方式来进入救援模式
+- 可以对 grub2 的个别菜单给予不同的密码

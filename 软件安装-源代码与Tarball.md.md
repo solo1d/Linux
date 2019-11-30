@@ -127,3 +127,66 @@ $make install
 #完成
 ```
 
+## 动态库和静态库
+**内核的函数库 :`/lib/modules`   , 绝大多数的函数库 :`/lib` , `/lib64`**
+### ldconfig 与 /etc/ld.so.conf
+- **将动态库载入高速缓存内存之中的方法 (可以提高效率)**
+  - **首先， 我们必须要在 `/etc/ld.so.conf.d/newfile.conf` 里面写下“ 想要读入高速缓存内存当中的动态函数库所在的目录”.**
+  - **接下来则是利用 `ldconfig` 这个可执行文件将 `/etc/ld.so.conf` 的数据读入高速缓存当中**
+  - ** 同时也将数据记录一份在 `/etc/ld.so.cache` 这个文件当中**
+```bash
+$ldconfig [-f conf] [ -C cache]     #将动态库缓存到内存
+$ldconfig [-p]
+选项与参数：
+-f  conf ： 那个 conf 指的是某个文件名称， 也就是说， 使用 conf 作为 libarary函数库的取得路径， 而不以 /etc/ld.so.conf.d/* 为默认值
+-C cache： 那个 cache 指的是某个文件名称， 也就是说， 使用 cache 作为高速缓存暂存的函数库数据， 而不以 /etc/ld.so.cache 为默认值
+-p ：  列出目前有的所有函数库数据内容 （ 在 /etc/ld.so.cache 内的数据！ ）
+
+范例一： 假设我的 Mariadb 数据库函数库在 /usr/lib64/mysql 当中， 如何读进 cache ？
+$vim /etc/ld.so.conf.d/mysql.conf       #文件名无所谓,记得就好.
+#写入的内容:   (只有一行)
+/usr/lib64/mysql
+
+$ldconfig       #根据配置文件 /etc/ld.so.conf.d/mysql.conf 来将 /usr/lib64/mysql 目录内的动态库读入内存
+$ldconfig -p   #检查一下是否已经读入成功
+```
+
+### 程序的动态函数库解析:ldd
+```bash
+$ldd    [-vdr]  [filename]
+选项与参数：
+-v ： 列出所有内容信息 以及 版本信息, 函数库来自于哪个软件.
+-d ： 重新将数据有遗失的 link 点 列出来.
+-r ： 将 ELF 有关的错误内容列出来！
+
+范例: 将 passwd 命令所需的动态库列出来
+$ldd  /usr/bin/passwd
+```
+
+## 检验软件正确性 : md5sum / sha1sum / sha256sum
+主要是为了保证下载的内容与官方提供的原版一致,没有人篡改过.
+```bash
+$md5sum/sha1sum/sha256sum [-bct] filename
+$md5sum/sha1sum/sha256sum [--status | --warn] --check filename
+选项与参数：
+-b ： 使用 binary 的读档方式， 默认为 Windows/DOS 文件型态的读取方式；
+-c ： 检验文件指纹；
+-t ： 以文字体态来读取文件指纹。
+
+范例一： 将刚刚的文件下载后， 测试看看指纹码
+$md5sum ntp-4.2.8p3.tar.gz
+b98b0cbb72f6df04608e1dd5f313808b ntp-4.2.8p3.tar.gz
+```
+
+
+## 小结
+- 源代码其实大多是纯文本文件， 需要通过编译器的编译动作后， 才能够制作出 Linux 系统能够认识的可执行的 binary file ；
+- 开放源代码可以加速软件的更新速度， 让软件性能更快、 漏洞修补更实时；
+- 在编译的过程当中， 可以借由其他软件提供的函数库来使用该软件的相关机制与功能；
+- 为了简化编译过程当中的复杂的指令输入， 可以借由 make 与 makefile 规则定义， 来简化程序的更新、 编译与链接等动作
+- Tarball 为使用 tar 与 gzip/bzip2/xz 压缩功能所打包与压缩的， 具有源代码的文件；
+- 一般而言， 要使用 Tarball 管理 Linux 系统上的软件， 最好需要 gcc, make, autoconfig,kernel source, kernel header 等前驱软件才行， 所以在安装 Linux 之初， 最好就能够选择Software development 以及 kernel development 之类的群组；
+- 函数库有动态函数库与静态函数库， 动态函数库在升级上具有较佳的优势。 动态函数库的扩展名为 .so 而静态则是 .a ；
+- patch 的主要功能在更新源代码， 所以更新源代码之后， 还需要进行重新编译的动作才行；
+- 可以利用 ldconfig 与 /etc/ld.so.conf /etc/ld.so.conf.d/*.conf 来制作动态函数库的链接与高速缓存!
+- 通过 MD5/SHA1/SHA256 的编码可以判断下载的文件是否为原本厂商所释出的文件。

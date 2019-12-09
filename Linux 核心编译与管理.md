@@ -263,7 +263,7 @@ drwxr-xr-x. 7 root root 4096 May 4 17:56  5.3.9vvbt     #执行命令之后产�
 $cp  /usr/src/kernels/linux-5.3.9/arch/x86/boot/bzImage    /boot/vmlinuz-5.3.9.vvbt      #后面是核心命名规则,每个系统都不相同.
 
 #复制配置文件过去,也就是调整好的 .config 文件, 配置文件也有命名规则的,每个系统都不相同
-$cp .config    /boot/config-5.3.9vvbt	       #vvbt和 核心名称相同.毕竟对应的就是那颗核心
+$cp .config    /boot/config-5.3.9.vvbt	       #vvbt和 核心名称相同.毕竟对应的就是那颗核心
 
 #给予核心文件可执行权限, 是所有人的可执行权限,这样才可以被 grub2 载入内存
 $chmod   a+x   /boot/vmlinuz-5.3.9.vvbt
@@ -272,14 +272,14 @@ $chmod   a+x   /boot/vmlinuz-5.3.9.vvbt
 $cp    /usr/src/kernels/linux-5.3.9/System.map     /boot/System.map-5.3.9vvbt
 
 #将 模块记录文件 压缩并拷贝过去,并重命名, 保持与核心的命名规则,内核通过这个文件来加载内核
-$gzip -c Module.symvers > /boot/symvers-5.3.9vvbt.gz
+$gzip -c Module.symvers > /boot/symvers-5.3.9.vvbt.gz
 
 #restorecon命令用来恢复SELinux文件属性即恢复文件的安全上下文. (只有支持SELinux 的才需要)
 $restorecon -Rv /boot
 
 
 #创建 对应的虚拟初始化文件系统 Initial Ram Disk （ initrd）
-$dracut -v    /boot/initramfs-5.3.9vvbt.img    5.3.9vvbt   #后面这个指的是  模块目录 /lib/modules  下的哪个目录名
+$dracut -v    /boot/initramfs-5.3.9.vvbt.img    /lib/modules/5.3.9vvbt   #后面这个指的是模块目录 /lib/modules  下的哪个目录名
 
 #编辑开机菜单 （ grub )
 	#较新的核心会在最前面 默认开机 启动菜单选项
@@ -407,7 +407,7 @@ $lsinitrd   /boot/initramfs-3.10.89.img ｜ grep ‘rr640’
 **如果出现编译错误,那么就是系统自带的核心没有源代码,需要去下载一个与内核一摸一样的 官方内核源代码.**
 ```bash
 #首先来到核心源代码目录
-$cd  /lob/modules/$(uname -r)/source
+$cd  /lib/modules/$(uname -r)/source
 
 #假设要添加一个 NTFS 的文件系统支持
 # 那么可以这么做:
@@ -415,7 +415,7 @@ $make menuconfig
 	#在核心选项中找到 NTFS 的文件系统支持,选择成为模块 M  ,然后保存退出.
 
 #再次下达命令:
-$make  fs/ntfs/          #那么这时候NTFS会被编译出来, ntfs.ko ,这个文件在 fs/ntfs/ 目录内
+$make SUBDIRS=./fs/ntfs modules        #那么这时候NTFS会被编译出来, ntfs.ko ,这个文件在 fs/ntfs/ 目录内
 
 #将编译好的模块复制到过去
 $cp  fs/ntfs/ntfs.ko   /lib/modules/3.10.89/kernel/fs/ntsf/

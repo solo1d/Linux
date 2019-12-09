@@ -193,8 +193,8 @@ time echo "scale=${num}; 4*a(1)" | bc -lq
 | -ef | 判断 file1 与 file2 是否为同一文件，可用在判断 hard link 的判定上。 主要意义在判定，两个文件是 否均指向同一个 inode |
 | |  |
 | | **4. 关于两个整数之间的判定，例 如 test n1 -eq n2** |
-| -ep | 两数值相等 (equal) |
-| -ne | 两数值不等 (not equal) |
+| -eq | 两数值相等返回1 |
+| -ne | 两数值不相等返回1 |
 | **-gt** | **n1 大于 n2 (greater than)** |
 | **-lt** | **n1 小于 n2 (less than)   `$[ "${#}" -lt 2 ]`** |
 | -ge | n1 大于等于 n2 (greater than or equal) |
@@ -212,7 +212,7 @@ time echo "scale=${num}; 4*a(1)" | bc -lq
 | ! | 反相状态，如 `test ! -x file` ，当 file 不具有 x(可执行权限) 时，回 传 true |
 
 ```bash
- #!/bin/bash
+#!/bin/bash
 # Program:
 #    User input a filename, program will check the flowing:
 #     测试文件或目录的存在,以及文件属性.
@@ -777,7 +777,7 @@ $sh  -x show_animal.sh
 - 在 script 内，$0, $1, $2..., $@ 是有特殊意义的!
   - $0  是运行脚本时所使用的脚本路径
   - $1  是运行脚本前  所写在后面的第一个参数
-  - $#  参数的总个数 , 从 $1 开始计算
+  - $# 参数的总个数 , 从 $1 开始计算
   - $@ 代表所有的输入参数.
 - 条件判断式可使用 if...then 来判断，若是固定变量内容的情况下，可使用 case $var in ... esac 来处理
 - 循环主要分为不定循环 (while, until) 以及固定循环 (for) ，配合 do, done 来达成所 需任务!

@@ -316,7 +316,7 @@ Last sector (65026048-83886046, default = 83886046) or {+-}size{KMGTP}: +1G  #+1
 Current type is 'Linux filesystem'
 Hex code or GUID (L to show codes, Enter = 8300): # 使用默认值即可~直接回车下去!
  # 这里在让你选择未来这个分区预计使用的文件系统!默认都是 Linux 文件系统的 8300 
- # swap 是 8200  ,  fat32 是 0700 ,  通过 t 选项查询.
+ # swap 是 8200  ,  fat32 是 0700 ,  通过 l 选项查询.
 #分区完毕, 接下来确认无误的话,进行w 保存就可以, 如果 有错误则输入 q退出,重新进行分区.
 Command (? for help): w     #保存修改.  接下来会有个确认提示,给y就好了.
 

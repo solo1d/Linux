@@ -202,7 +202,7 @@ $path=${PATH}
 $echo ${path}	
 输出: /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
-#  从前面开始想后面删除  #  
+#  从前面开始向后面删除  #  
 $echo ${path#/*local/bin:}	#删除最短的 /usr/local/bin: 这一串字符串.只有这个是完全匹配的
 				#其实/home/dmtsai/.local/bin: 也匹配,只不过他不是最短的.
 输出: 
@@ -214,7 +214,7 @@ $echo  ${path##/*:}     #删除一个最长的字符串 / 开头 :结尾  ,只�
 
 
 
-#从后面想前面删除  #
+#从后面向前面删除  #
 $echo  ${path%*bin}
 输出:
 /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/		#仅仅只是少了最后面的一个 bin 字符串

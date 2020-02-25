@@ -18,12 +18,26 @@ Centos 7.x之后, 放弃了 init 启动脚本的方法,改用 systemd 这个启�
   - 将多个 守护进程 集合为一个群组.
   - 向下兼容旧有版本的 init 服务脚本.
 
-##### systemd 配置文件放置目录
+### systemd 配置文件放置目录
+
+- **在系统启动阶段, 许多守护进程由系统初始化脚本启动, 拥有超级用户特权**
+
+  - ==**系统的关键服务的脚本都放在这里`/lib/systemd/system/`**==
+    - ==**如果是开机启动的话会创建软连接到`/etc/systemd/system/multi-user.target.wants/` 目录下.**==
+      - ==**并且会传递参数给 `/lib/systemd/systemd-sysv-install disable 服务` 这个脚本文件格式`(systemctl 命令来做)`**==
+  - ==**用户自定义的脚本应该放在 `/usr/lib/systemd/system/` 目录下**==
+    - **如果想开机启动,那么就创建软连接到 `/etc/systemd/system/multi-user.target.wants/`这个目录下**
+
+  - **`/etc/systemd/system` 目录下的内容都是 `/lib/systemd/system/` 的软连接, 开机启动**
+
 - **`/usr/lib/systemd/system/`**  :每个服务最主要的启动脚本设置.类似于 /etc/init.d 下面的脚本.
   - 系统开机会不会执行某些服务,就是看这个目录下的设置,所以这个目录下都是链接文件.
   - 修改某个服务启动的设置,应该去`/usr/lib/systemd/system` 下面修改才对.
+  - ==**系统的关键服务的脚本都放在这里`/lib/systemd/system/`**==
+  - ==**用户自定义的脚本应该放在 `/usr/lib/systemd/system/` 目录下**==
 - **`/run/systemd/system/`** :系统执行过程中产生的服务脚本,这个脚本的优先级要比 `/usr/lib/systemd/system/`高.
 - **`/etc/systemd/system/`** :管理员依据主机系统的需要所创建的执行脚本,优先级比 `/run/systemd/system/`高.
+  - **这里面的内容,都是指向 `/lib/systemd/system/` 目录下的内容**
 
 ##### systemd 的 unit服务单位 类型分类说明
 看文件的拓展名即可知道属于哪种类型.(就是.service 之类的)

@@ -577,7 +577,7 @@ visudo 也是调用 vi 来进行文件 /etc/sudoers 的编辑, 只不过有语�
     - whell   是一个群组,   可以自定义目前已存在的群组, 但是一定要注意权限.
     - 后面的其他内容和上面的一样.
 - **免密码的功能处理,即可以无密码使用 sudo**
-  - **还是使用 $visudo 命令,找到  ` %whell   ALL=(ALL)  ALL  NOPASSWD: ALL`  这一行**
+  - **还是使用 $visudo 命令,找到  ` %whell   ALL=(ALL)  NOPASSWD: ALL`  这一行**
   - 重点就是 NOPASSWD 这一行, 后面的 ALL 则代表所有指令.
 - 使用别名来进行添加和设置,  很便捷
   - 使用 $visudo 命令 ,  进入到编辑界面,选择性的添加如下内容: (别名必须大写 )

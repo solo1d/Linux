@@ -73,6 +73,7 @@
 
    1. 执行这个命令 `make`  去编译内核
       1. **编译成功后的内核位于：`arch/x86_64/boot/bzImage`**
+   2. 如果想看更详细的 内核编译信息, 就携带一些参数  `make  V=1` 即可, 会得到内核编译和链接的细节信息
 
 
 
@@ -195,7 +196,7 @@ sudo qemu-system-x86_64 \
 		 -serial file:output.txt
 #使用的是x86_64的体系架构, -kernel 内核镜像地址 , -initrd 文件系统镜像 , -append 传给内核的参数 init告诉内核去哪里找第一个init进程的可执行二进制文件 并设置为可读写文件系统, -serial 是设置日志输出的位置
 
-#这样一个完整的最小linux系统就起来啦：
+#这样一个完整的最小linux系统就起来了
 ```
 
 <img src="jpg/qemu.jpg" alt="qemu" style="zoom:100%;" />

@@ -1,10 +1,33 @@
+- [内核的5大作用](#内核的5大作用)
+- [驱动模块简介](#驱动模块简介)
+  - [设备分类](#设备分类)
+- [驱动模块编写](#驱动模块编写)
+  - [驱动模块编写过程](#驱动模块编写过程)
+  - [驱动模块使用命令](#驱动模块使用命令)
+  - [字符设备驱动结构体描述](#字符设备驱动结构体描述)
+    - [编写字符设备驱动所用到的函数](#编写字符设备驱动所用到的函数)
+    - [一个简单字符设备驱动模版](#一个简单字符设备驱动模版)
+      - [配套的Makefile模版](#配套的Makefile模版)
+- [简单的字符设备驱动](#简单的字符设备驱动)
+  - [配套的Makefile](#配套的Makefile)
+  - [创建匹配的设备文件](#创建匹配的设备文件)
+  - [C函数调用简单的字符设备驱动中的函数](#C函数调用简单的字符设备驱动中的函数)
+  - [使用dmesg命令查看模块输出和日志](#使用dmesg命令查看模块输出和日志)
+  - 
+
+
+
+
+
+
+
 ## 内核的5大作用
 
 **内存管理,  进程的调度, 网络协议栈的支持, 文件系统的管理, 设备(驱动)管理.**
 
 # 驱动模块简介
 
-驱动是连接内核于设备的桥梁.
+驱动是连接内核与设备的桥梁.
 
 **设备驱动是由内核设备管理来控制的.由内核统一管理.**
 
@@ -16,7 +39,7 @@
 
 **需要一个通用的结构体来描述是三种设备所有的通信与信息.**
 
-### 设备分类
+## 设备分类
 
 - **字符设备**
   - 字符设备驱动   ---> 字符设备文件
@@ -123,7 +146,11 @@
     
     - **完成Makefile文件之后,就可以执行 `$make` 进行编译, 这样就会生成 .ko 文件了.**
 
-- **驱动模块使用**
+  
+
+  
+
+  ## 驱动模块使用命令
 
   - **查看内核模块信息 `$modinfo  模块.ko`**
 
@@ -177,7 +204,8 @@
       ```
 
 
-## 字符设备驱动
+
+## 字符设备驱动结构体描述
 
 **要遵循内核提供的 字符设备驱动框架**
 
@@ -229,7 +257,9 @@
     	/* 省略很多内容, 全都是函数指针, 上面都是一些常用的内容 */ 
     ```
 
-### 编写字符设备驱动
+
+
+## 编写字符设备驱动所用到的函数
 
 0. **分配设备号, 注册设备号,注销设备号, 有以下两种方法任选其一即可:**
 
@@ -342,7 +372,9 @@
       };    /* 只初始化了一部分 */
       ```
 
-#### 一个驱动模版
+
+
+## 一个简单字符设备驱动模版
 
 ```c
 #include <linux/init.h>
@@ -431,9 +463,11 @@ module_exit(demo_exit);
 MODULE_LICENSE("GPL");
 ```
 
-#### 配套的Makefile 模版
 
-```c
+
+## 配套的Makefile模版
+
+```makefile
 KERDIR="/lib/modules/5.4.0ass/build/"     #内核源代码目录
 
 PWD:=$(shell pwd)	   #当前所在的目录,也是编写新驱动所在的目录
@@ -451,9 +485,168 @@ clean:
 
 
 
+## 简单的字符设备驱动
+
+```c
+#include <linux/module.h>
+#include <linux/moduleparam.h>
+#include <linux/cdev.h>
+#include <linux/fs.h>
+#include <linux/wait.h>
+#include <linux/poll.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+
+#define BUFFER_MAX   (10)
+#define OK           (0)
+#define ERROR        (-1)
+
+struct cdev* gDev;
+struct file_operations* gFile;
+dev_t devNum;
+unsigned int subDevNum = 1;
+int reg_major = 232;  //主设备号
+int reg_minor = 0;    //次设备号
+char* buffer;
+int flag = 0;
+
+int hello_open(struct inode* p, struct file* f){
+    printk(KERN_EMERG "hello_open\r\n"); // 会输出到 Linux的模块日志中, 使用 dmesg 命令查看
+    return 0;
+}
+
+ssize_t  hello_write(struct file*f, const char __user* u,  size_t s, loff_t* l){
+    printk(KERN_EMERG "hello_write\r\n");
+    return 0;
+}
+
+ssize_t hello_read(struct file*f, char __user* u, size_t s, loff_t * l){
+    printk(KERN_EMERG "hello_read\r\n");
+    return 0;
+}
+ 
+ int hello_init(void){
+     devNum = MKDEV(reg_major, reg_minor);   //通过一个宏来生成主+次设备号
+     if(OK == register_chrdev_region(devNum, subDevNum, "helloworld")){ // 指定设备号注册
+         printk(KERN_EMERG "register_chrdev_region ok\n");
+     }
+     else{
+         printk(KERN_EMERG "register_chrdev_region error \n"); 
+         return ERROR;
+     }
+     printk(KERN_EMERG "hello driver init \n");
+     gDev = kzalloc(sizeof(struct cdev), GFP_KERNEL);
+     gFile = kzalloc(sizeof(struct file_operations), GFP_KERNEL);
+    gFile->open = hello_open;
+    gFile->read = hello_read;
+    gFile->write = hello_write;
+    gFile ->owner = THIS_MODULE;
+    cdev_init(gDev, gFile);
+    cdev_add (gDev, devNum,1);
+    return 0;
+ }
+
+void __exit hello_exit(void){
+    cdev_del (gDev);
+    unregister_chrdev_region(devNum, subDevNum);
+    return ;
+}
+
+ module_init(hello_init);   // 声明了驱动的入口函数, 挂载
+ module_exit(hello_exit);   // 声明了驱动的出口函数, 卸载
+ MODULE_LICENSE("GPL");     // 该源码的声明许可
+```
+
+## 配套的Makefile
+
+```makefile
+ifneq ($(KERNELRELEASE),)
+obj-m := helloDev.o
+else
+PWD := $(shell pwd)
+#KDIR := /home/jinxin/linux-4.9.229
+#KDIR := /lib/modules/4.4.0.31-generic/build
+KDIR := /lib/modules/`uname -r`/build
+all:
+	make -C $(KDIR) M=$(PWD)
+clean:
+	rm -rf *.o *.ko *.mkd.c *.symvers *.c~ *~
+endif
+```
 
 
 
+## 加载字符设备驱动模块到内核
+
+```bash
+make #编译出 .ko 内核驱动模块文件
+
+sudo insmod hello.ko  #加载 hello.ko 模块到内核
+sudo lsmod  | grep 'hello'    #检查模块是否被加载成功
+sudo rmmod  hello      #卸载 hello 模块
+```
+
+
+
+
+
+## 创建匹配的设备文件
+
+```bash
+#使用命令  mknod 来创建 字符设备文件
+mknod  /dev/hello  c 232 0
+			# /dev/hello 设备名  
+			# c 是字符设备  , b 是块设备
+			# 232 是主设备号
+			# 0 是次设备号
+```
+
+
+
+## C函数调用简单的字符设备驱动中的函数
+
+```c
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/select.h>
+#include <unistd.h>
+
+#define DATA_NUM  (64)
+
+int main(int argc, char* argv[]){
+        int fd, i;
+        int r_len, w_len;
+        fd_set fdset;
+        char buf[DATA_NUM] = "hello world";
+        memset(buf, 0, DATA_NUM);
+        fd = open("/dev/hello", O_RDWR);
+        printf( " %d\r\n", fd);
+        if(-1 == fd){
+                perror("open file error\r\n");
+                return -1;
+        }
+        else{
+                printf("open successe\r\n");
+        }
+
+        w_len = write(fd, buf, DATA_NUM);  //最终会调用 设备驱动的 write函数
+        r_len =  read(fd, buf, DATA_NUM);
+        printf("%d   %d\r\n", w_len, r_len);
+        printf("%s\r\n", buf);
+
+        return 0;
+}
+```
+
+
+
+## 使用dmesg命令查看模块输出和日志
+
+```bash
+dmesg     #查看模块输出和日志
+dmesg -c  #清空所有 模块输出和日志
+```
 
 
 

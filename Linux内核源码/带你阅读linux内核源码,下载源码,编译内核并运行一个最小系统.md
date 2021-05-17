@@ -6,7 +6,7 @@
 
 > **首先是开发环境,  Ubunt 系统, 安装依赖内容和开发工具**
 >
-> **`sud apt install -y make gcc gdb g++ ncurses-* kernel-common libelf-dev  libssl-dev  net-tools python `**
+> **`sudo apt install -y make gcc gdb g++ ncurses-* kernel-common libelf-dev  libssl-dev  net-tools python `**
 
 
 
@@ -36,7 +36,8 @@
 1. **指定硬件体系架构。**
 
    1. 为了减少安装编译器的过程，我在本例中使用的是x86，因为我的开发环境就是x86。如果你要编译arm的内核，则指定ARCH=arm 且需要安装交叉编译器, 命令如下
-      1. 如果是x86(也包括x64) 则 `export ARCH=x86`  ,  如果是ARM 则 `export ARCH=arm`
+      1. **可以使用  `$ arch` 命令来获取和确定当前系统的体系架构**
+      2. 如果是x86(也包括x64) 则 `export ARCH=x86`  ,  如果是ARM 则 `export ARCH=arm`
 
 2. **配置board config,此处配置为 x86_64_defconfig。好了，我们点好菜了，菜单就是x86_64_defconfig,  命令如下:**
 

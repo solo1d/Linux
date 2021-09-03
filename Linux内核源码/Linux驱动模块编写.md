@@ -94,18 +94,20 @@
       #include <linux/init.h>
       #include <linux/module.h>
       
-      int __init  demo_init(void){
-              printk("init--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
+      static int __init  demo_init(void){
+              printk(KERN_ALERT "init--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
               return 0;
       }
       
-      void __exit demo_exit(void){
-              printk("exit--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
+      static void __exit demo_exit(void){
+              printk(KERN_ALERT "exit--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
       }
       
       module_init(demo_init);
       module_exit(demo_exit);
       MODULE_LICENSE("GPL");
+      MODULE_AUTHOR("my_name"); // 代码的作者
+      MODULE_DESCRIPTION("A Hello. World Module");  //模块的简要说明
       ```
 
 - **驱动模块编译**

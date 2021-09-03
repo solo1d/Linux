@@ -71,24 +71,30 @@ void*  page_address(const struct page* page);
 **可以使用命令 `cat /proc/slabinfo` 来查看系统所有的高速缓存**
 
 ```c
+// 高速缓存通过以下函数创建, 该函数会睡眠, 不可用于中断上下文
 // 使用该函数建立一个的高速缓存,  但是需要另外的函数来进行使用这块高速缓存
 struct kmem_cache*  kmem_cache_create(const char* name, size_t size, size_t align,
                                       unsigned long flags, void (*ctor)(void*) );
 /*  参数:
 		   name:  高速缓存的名字
-		   size:  高速缓存大小
-		   align: 对齐大小 ,  1024,4096
-		   flags: 
-		   ctor: 
-			返回值:  申请到的一个高速缓存 
+		   size:  高速缓存中每个元素的大小
+		   align: 对齐大小 ,也是slab内第一个对象的偏移,  0,1024,4096
+		   flags: 可选的设置项, 用来控制高速缓存的行为, 可以为0 代表没有特殊行为,也不要胡乱设置
+		           SLAB_HWCACHE_ALIGN 高速缓存行对齐, SLAB_POISON 用 0xa5a5 的值填充slab,
+		           SLAB_RED_ZONE 通过插入警戒区探测缓存越界, SLAB_PANIC 分配失败时通知slab层,
+               SLAB_CACHE_DMA 命令slab层使用可以执行DMA的内存给每个slab分配空间
+		   ctor:  该参数已抛弃给 NULL即可, 高速缓存的构造函数,只有新的页追加到高速缓存时,构造函数才会被调用
+			返回值:  成功返回指向高速缓存的指针, 失败NULL
 */
 
-void kmem_cache_destriy(struct kmem_cache* s);
-/*  释放从 kmem_cache_create() 函数申请的高速缓存内存
+
+//撤销从 kmem_cache_create() 函数申请的高速缓存内存, 通常是模块的注销代码中调用
+// 但是必须保证 高速缓存中的所有 slab 都必须为空, 否则失败
+int kmem_cache_destriy(struct kmem_cache* s);
+/* 
   参数: s: kmem_cache_create() 函数返回值
+  返回值: 成功返回0, 失败返回1
 */
-
-
 ```
 
 ```c
@@ -112,7 +118,7 @@ static __always_inline void*  slab_alloc(struct keme_cache* cache, gfp_t flags,
 // 下面的函数, 申请的内存空间只会比 size 要去的大, 不会小
 // 设备驱动 所需要的内存 在物理上应该是连续的
 
-static __always_inline void* kmalloc(size_t size, fgp_t flags);
+static __always_inline void *kmalloc(size_t size, gfp_t flags);
 static inline void*  kzalloc(size_t szie, gfp_t flags); // 申请到的空间置0
 /* 在内核或驱动里面 申请内存的常用函数
    返回一个指向内存块的指针, 其内存块大小 至少是size大小, 所分配的内存 在物理上 是连续的.

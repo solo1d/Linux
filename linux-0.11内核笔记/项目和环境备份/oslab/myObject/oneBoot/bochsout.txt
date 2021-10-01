@@ -1,0 +1,334 @@
+00000000000i[     ] Bochs x86 Emulator 2.3.7
+00000000000i[     ]   Build from CVS snapshot, on June 3, 2008
+00000000000i[     ] System configuration
+00000000000i[     ]   processors: 1 (cores=1, HT threads=1)
+00000000000i[     ]   A20 line support: yes
+00000000000i[     ]   APIC support: no
+00000000000i[     ] CPU configuration
+00000000000i[     ]   level: 5
+00000000000i[     ]   SMP support: no
+00000000000i[     ]   FPU support: yes
+00000000000i[     ]   MMX support: yes
+00000000000i[     ]   SSE support: no
+00000000000i[     ]   CLFLUSH support: no
+00000000000i[     ]   VME support: yes
+00000000000i[     ]   3dnow! support: no
+00000000000i[     ]   PAE support: no
+00000000000i[     ]   PGE support: no
+00000000000i[     ]   PSE support: yes
+00000000000i[     ]   x86-64 support: no
+00000000000i[     ]   SEP support: no
+00000000000i[     ]   MWAIT support: no
+00000000000i[     ]   XSAVE support: no
+00000000000i[     ]   AES support: no
+00000000000i[     ] Optimization configuration
+00000000000i[     ]   Guest2HostTLB support: no
+00000000000i[     ]   RepeatSpeedups support: no
+00000000000i[     ]   Icache support: no
+00000000000i[     ]   Trace cache support: no
+00000000000i[     ]   Fast function calls: no
+00000000000i[     ] Devices configuration
+00000000000i[     ]   ACPI support: no
+00000000000i[     ]   NE2000 support: no
+00000000000i[     ]   PCI support: no
+00000000000i[     ]   SB16 support: no
+00000000000i[     ]   USB support: no
+00000000000i[     ]   VGA extension support: vbe 
+00000000000i[MEM0 ] allocated memory at 0xf65d9008. after alignment, vector=0xf65da000
+00000000000i[MEM0 ] 16.00MB
+00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/home/ns/oslab/bochs/BIOS-bochs-latest')
+00000000000i[MEM0 ] rom at 0xc0000/39424 ('/home/ns/oslab/bochs/vgabios.bin')
+00000000000i[CMOS ] Using local time for initial clock
+00000000000i[CMOS ] Setting initial clock to: Sun Sep 19 17:09:43 2021 (time0=1632042583)
+00000000000i[DMA  ] channel 4 used by cascade
+00000000000i[DMA  ] channel 2 used by Floppy Drive
+00000000000i[FDD  ] fd0: 'boot' ro=0, h=2,t=80,spt=18
+00000000000i[MEM0 ] Register memory access handlers: 0x000a0000 - 0x000bffff
+00000000000i[XGUI ] test_alloc_colors: 16 colors available out of 16 colors tried
+00000000000i[XGUI ] font 8 wide x 16 high, display depth = 24
+00000000000i[VGA  ] interval=300000
+00000000000i[MEM0 ] Register memory access handlers: 0xe0000000 - 0xe07fffff
+00000000000i[VGA  ] VBE Bochs Display Extension Enabled
+00000000000i[     ] init_mem of 'harddrv' plugin device by virtual method
+00000000000i[     ] init_mem of 'keyboard' plugin device by virtual method
+00000000000i[     ] init_mem of 'serial' plugin device by virtual method
+00000000000i[     ] init_mem of 'parallel' plugin device by virtual method
+00000000000i[     ] init_mem of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] init_mem of 'speaker' plugin device by virtual method
+00000000000i[     ] init_dev of 'harddrv' plugin device by virtual method
+00000000000i[HD   ] HD on ata0-0: '/home/ns/oslab/hdc-0.11.img' 'flat' mode 
+00000000000i[HD   ] translation on ata0-0 set to 'none'
+00000000000i[HD   ] Using boot sequence floppy, none, none
+00000000000i[HD   ] Floppy boot signature check is enabled
+00000000000i[     ] init_dev of 'keyboard' plugin device by virtual method
+00000000000i[KBD  ] will paste characters every 1000 keyboard ticks
+00000000000i[     ] init_dev of 'serial' plugin device by virtual method
+00000000000i[SER  ] com1 at 0x03f8 irq 4
+00000000000i[     ] init_dev of 'parallel' plugin device by virtual method
+00000000000i[PAR  ] parallel port 1 at 0x0378 irq 7
+00000000000i[     ] init_dev of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] init_dev of 'speaker' plugin device by virtual method
+00000000000i[SPEAK] Failed to open /dev/console: Resource temporarily unavailable
+00000000000i[SPEAK] Deactivating beep on console
+00000000000i[     ] register state of 'harddrv' plugin device by virtual method
+00000000000i[     ] register state of 'keyboard' plugin device by virtual method
+00000000000i[     ] register state of 'serial' plugin device by virtual method
+00000000000i[     ] register state of 'parallel' plugin device by virtual method
+00000000000i[     ] register state of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] register state of 'speaker' plugin device by virtual method
+00000000000i[SYS  ] bx_pc_system_c::Reset(HARDWARE) called
+00000000000i[CPU  ] cpu hardware reset
+00000000000i[     ] reset of 'harddrv' plugin device by virtual method
+00000000000i[     ] reset of 'keyboard' plugin device by virtual method
+00000000000i[     ] reset of 'serial' plugin device by virtual method
+00000000000i[     ] reset of 'parallel' plugin device by virtual method
+00000000000i[     ] reset of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] reset of 'speaker' plugin device by virtual method
+00000000000i[XGUI ] [x] Mouse off
+00000003000e[VGA  ] character height = 1, skipping text update
+00000003445i[BIOS ] $Revision: 1.194 $ $Date: 2007/12/23 19:46:27 $
+00000006000e[VGA  ] character height = 1, skipping text update
+00000009000e[VGA  ] character height = 1, skipping text update
+00000012000e[VGA  ] character height = 1, skipping text update
+00000015000e[VGA  ] character height = 1, skipping text update
+00000018000e[VGA  ] character height = 1, skipping text update
+00000021000e[VGA  ] character height = 1, skipping text update
+00000024000e[VGA  ] character height = 1, skipping text update
+00000027000e[VGA  ] character height = 1, skipping text update
+00000030000e[VGA  ] character height = 1, skipping text update
+00000033000e[VGA  ] character height = 1, skipping text update
+00000036000e[VGA  ] character height = 1, skipping text update
+00000039000e[VGA  ] character height = 1, skipping text update
+00000042000e[VGA  ] character height = 1, skipping text update
+00000045000e[VGA  ] character height = 1, skipping text update
+00000048000e[VGA  ] character height = 1, skipping text update
+00000051000e[VGA  ] character height = 1, skipping text update
+00000054000e[VGA  ] character height = 1, skipping text update
+00000057000e[VGA  ] character height = 1, skipping text update
+00000060000e[VGA  ] character height = 1, skipping text update
+00000063000e[VGA  ] character height = 1, skipping text update
+00000066000e[VGA  ] character height = 1, skipping text update
+00000069000e[VGA  ] character height = 1, skipping text update
+00000072000e[VGA  ] character height = 1, skipping text update
+00000075000e[VGA  ] character height = 1, skipping text update
+00000078000e[VGA  ] character height = 1, skipping text update
+00000081000e[VGA  ] character height = 1, skipping text update
+00000084000e[VGA  ] character height = 1, skipping text update
+00000087000e[VGA  ] character height = 1, skipping text update
+00000090000e[VGA  ] character height = 1, skipping text update
+00000093000e[VGA  ] character height = 1, skipping text update
+00000096000e[VGA  ] character height = 1, skipping text update
+00000099000e[VGA  ] character height = 1, skipping text update
+00000102000e[VGA  ] character height = 1, skipping text update
+00000105000e[VGA  ] character height = 1, skipping text update
+00000108000e[VGA  ] character height = 1, skipping text update
+00000111000e[VGA  ] character height = 1, skipping text update
+00000114000e[VGA  ] character height = 1, skipping text update
+00000117000e[VGA  ] character height = 1, skipping text update
+00000120000e[VGA  ] character height = 1, skipping text update
+00000123000e[VGA  ] character height = 1, skipping text update
+00000126000e[VGA  ] character height = 1, skipping text update
+00000129000e[VGA  ] character height = 1, skipping text update
+00000132000e[VGA  ] character height = 1, skipping text update
+00000135000e[VGA  ] character height = 1, skipping text update
+00000138000e[VGA  ] character height = 1, skipping text update
+00000141000e[VGA  ] character height = 1, skipping text update
+00000144000e[VGA  ] character height = 1, skipping text update
+00000147000e[VGA  ] character height = 1, skipping text update
+00000150000e[VGA  ] character height = 1, skipping text update
+00000153000e[VGA  ] character height = 1, skipping text update
+00000156000e[VGA  ] character height = 1, skipping text update
+00000159000e[VGA  ] character height = 1, skipping text update
+00000162000e[VGA  ] character height = 1, skipping text update
+00000165000e[VGA  ] character height = 1, skipping text update
+00000168000e[VGA  ] character height = 1, skipping text update
+00000171000e[VGA  ] character height = 1, skipping text update
+00000174000e[VGA  ] character height = 1, skipping text update
+00000177000e[VGA  ] character height = 1, skipping text update
+00000180000e[VGA  ] character height = 1, skipping text update
+00000183000e[VGA  ] character height = 1, skipping text update
+00000186000e[VGA  ] character height = 1, skipping text update
+00000189000e[VGA  ] character height = 1, skipping text update
+00000192000e[VGA  ] character height = 1, skipping text update
+00000195000e[VGA  ] character height = 1, skipping text update
+00000198000e[VGA  ] character height = 1, skipping text update
+00000201000e[VGA  ] character height = 1, skipping text update
+00000204000e[VGA  ] character height = 1, skipping text update
+00000207000e[VGA  ] character height = 1, skipping text update
+00000210000e[VGA  ] character height = 1, skipping text update
+00000213000e[VGA  ] character height = 1, skipping text update
+00000216000e[VGA  ] character height = 1, skipping text update
+00000219000e[VGA  ] character height = 1, skipping text update
+00000222000e[VGA  ] character height = 1, skipping text update
+00000225000e[VGA  ] character height = 1, skipping text update
+00000228000e[VGA  ] character height = 1, skipping text update
+00000231000e[VGA  ] character height = 1, skipping text update
+00000234000e[VGA  ] character height = 1, skipping text update
+00000237000e[VGA  ] character height = 1, skipping text update
+00000240000e[VGA  ] character height = 1, skipping text update
+00000243000e[VGA  ] character height = 1, skipping text update
+00000246000e[VGA  ] character height = 1, skipping text update
+00000249000e[VGA  ] character height = 1, skipping text update
+00000252000e[VGA  ] character height = 1, skipping text update
+00000255000e[VGA  ] character height = 1, skipping text update
+00000258000e[VGA  ] character height = 1, skipping text update
+00000261000e[VGA  ] character height = 1, skipping text update
+00000264000e[VGA  ] character height = 1, skipping text update
+00000267000e[VGA  ] character height = 1, skipping text update
+00000270000e[VGA  ] character height = 1, skipping text update
+00000273000e[VGA  ] character height = 1, skipping text update
+00000276000e[VGA  ] character height = 1, skipping text update
+00000279000e[VGA  ] character height = 1, skipping text update
+00000282000e[VGA  ] character height = 1, skipping text update
+00000285000e[VGA  ] character height = 1, skipping text update
+00000288000e[VGA  ] character height = 1, skipping text update
+00000291000e[VGA  ] character height = 1, skipping text update
+00000294000e[VGA  ] character height = 1, skipping text update
+00000297000e[VGA  ] character height = 1, skipping text update
+00000300000e[VGA  ] character height = 1, skipping text update
+00000303000e[VGA  ] character height = 1, skipping text update
+00000306000e[VGA  ] character height = 1, skipping text update
+00000309000e[VGA  ] character height = 1, skipping text update
+00000312000e[VGA  ] character height = 1, skipping text update
+00000315000e[VGA  ] character height = 1, skipping text update
+00000318000e[VGA  ] character height = 1, skipping text update
+00000321000e[VGA  ] character height = 1, skipping text update
+00000324000e[VGA  ] character height = 1, skipping text update
+00000327000e[VGA  ] character height = 1, skipping text update
+00000330000e[VGA  ] character height = 1, skipping text update
+00000333000e[VGA  ] character height = 1, skipping text update
+00000336000e[VGA  ] character height = 1, skipping text update
+00000339000e[VGA  ] character height = 1, skipping text update
+00000342000e[VGA  ] character height = 1, skipping text update
+00000345000e[VGA  ] character height = 1, skipping text update
+00000348000e[VGA  ] character height = 1, skipping text update
+00000351000e[VGA  ] character height = 1, skipping text update
+00000352871i[KBD  ] reset-disable command received
+00000354000e[VGA  ] character height = 1, skipping text update
+00000357000e[VGA  ] character height = 1, skipping text update
+00000360000e[VGA  ] character height = 1, skipping text update
+00000363000e[VGA  ] character height = 1, skipping text update
+00000366000e[VGA  ] character height = 1, skipping text update
+00000369000e[VGA  ] character height = 1, skipping text update
+00000370247i[BIOS ] Starting rombios32
+00000370943i[BIOS ] ram_size=0x00f00000
+00000371457i[BIOS ] Found 1 cpu(s)
+00000372000e[VGA  ] character height = 1, skipping text update
+00000375000e[VGA  ] character height = 1, skipping text update
+00000378000e[VGA  ] character height = 1, skipping text update
+00000381000e[VGA  ] character height = 1, skipping text update
+00000384000e[VGA  ] character height = 1, skipping text update
+00000387000e[VGA  ] character height = 1, skipping text update
+00000390000e[VGA  ] character height = 1, skipping text update
+00000393000e[VGA  ] character height = 1, skipping text update
+00000396000e[VGA  ] character height = 1, skipping text update
+00000399000e[VGA  ] character height = 1, skipping text update
+00000402000e[VGA  ] character height = 1, skipping text update
+00000405000e[VGA  ] character height = 1, skipping text update
+00000408000e[VGA  ] character height = 1, skipping text update
+00000411000e[VGA  ] character height = 1, skipping text update
+00000414000e[VGA  ] character height = 1, skipping text update
+00000417000e[VGA  ] character height = 1, skipping text update
+00000420000e[VGA  ] character height = 1, skipping text update
+00000423000e[VGA  ] character height = 1, skipping text update
+00000426000e[VGA  ] character height = 1, skipping text update
+00000429000e[VGA  ] character height = 1, skipping text update
+00000432000e[VGA  ] character height = 1, skipping text update
+00000435000e[VGA  ] character height = 1, skipping text update
+00000438000e[VGA  ] character height = 1, skipping text update
+00000441000e[VGA  ] character height = 1, skipping text update
+00000447000e[VGA  ] character height = 1, skipping text update
+00000450000e[VGA  ] character height = 1, skipping text update
+00000453000e[VGA  ] character height = 1, skipping text update
+00000456000e[VGA  ] character height = 1, skipping text update
+00000459000e[VGA  ] character height = 1, skipping text update
+00000462000e[VGA  ] character height = 1, skipping text update
+00000465000e[VGA  ] character height = 1, skipping text update
+00000468000e[VGA  ] character height = 1, skipping text update
+00000471000e[VGA  ] character height = 1, skipping text update
+00000474000e[VGA  ] character height = 1, skipping text update
+00000477000e[VGA  ] character height = 1, skipping text update
+00000480000e[VGA  ] character height = 1, skipping text update
+00000483000e[VGA  ] character height = 1, skipping text update
+00000486000e[VGA  ] character height = 1, skipping text update
+00000489000e[VGA  ] character height = 1, skipping text update
+00000492000e[VGA  ] character height = 1, skipping text update
+00000495000e[VGA  ] character height = 1, skipping text update
+00000498000e[VGA  ] character height = 1, skipping text update
+00000501000e[VGA  ] character height = 1, skipping text update
+00000504000e[VGA  ] character height = 1, skipping text update
+00000507000e[VGA  ] character height = 1, skipping text update
+00000510000e[VGA  ] character height = 1, skipping text update
+00000513000e[VGA  ] character height = 1, skipping text update
+00000516000e[VGA  ] character height = 1, skipping text update
+00000519000e[VGA  ] character height = 1, skipping text update
+00000522000e[VGA  ] character height = 1, skipping text update
+00000525000e[VGA  ] character height = 1, skipping text update
+00000528000e[VGA  ] character height = 1, skipping text update
+00000531000e[VGA  ] character height = 1, skipping text update
+00000534000e[VGA  ] character height = 1, skipping text update
+00000537000e[VGA  ] character height = 1, skipping text update
+00000540000e[VGA  ] character height = 1, skipping text update
+00000543000e[VGA  ] character height = 1, skipping text update
+00000546000e[VGA  ] character height = 1, skipping text update
+00000549000e[VGA  ] character height = 1, skipping text update
+00000552000e[VGA  ] character height = 1, skipping text update
+00000555000e[VGA  ] character height = 1, skipping text update
+00000558000e[VGA  ] character height = 1, skipping text update
+00000561000e[VGA  ] character height = 1, skipping text update
+00000564000e[VGA  ] character height = 1, skipping text update
+00000567000e[VGA  ] character height = 1, skipping text update
+00000570000e[VGA  ] character height = 1, skipping text update
+00000573000e[VGA  ] character height = 1, skipping text update
+00000576000e[VGA  ] character height = 1, skipping text update
+00000579000e[VGA  ] character height = 1, skipping text update
+00000582000e[VGA  ] character height = 1, skipping text update
+00000585000e[VGA  ] character height = 1, skipping text update
+00000588000e[VGA  ] character height = 1, skipping text update
+00000591000e[VGA  ] character height = 1, skipping text update
+00000594000e[VGA  ] character height = 1, skipping text update
+00000595955i[VBIOS] VGABios $Id: vgabios.c,v 1.66 2006/07/10 07:47:51 vruppert Exp $
+00000596026i[VGA  ] VBE known Display Interface b0c0
+00000596058i[VGA  ] VBE known Display Interface b0c4
+00000597000e[VGA  ] character height = 1, skipping text update
+00000598983i[VBIOS] VBE Bios $Id: vbe.c,v 1.58 2006/08/19 09:39:43 vruppert Exp $
+00000600000e[VGA  ] character height = 1, skipping text update
+00000603000e[VGA  ] character height = 1, skipping text update
+00000606000e[VGA  ] character height = 1, skipping text update
+00000609000e[VGA  ] character height = 1, skipping text update
+00000612000e[VGA  ] character height = 1, skipping text update
+00000615000e[VGA  ] character height = 1, skipping text update
+00000618000e[VGA  ] character height = 1, skipping text update
+00000642000i[XGUI ] charmap update. Font Height is 16
+00000645000i[XGUI ] charmap update. Font Height is 16
+00000648000i[XGUI ] charmap update. Font Height is 16
+00000651000i[XGUI ] charmap update. Font Height is 16
+00000654000i[XGUI ] charmap update. Font Height is 16
+00000657000i[XGUI ] charmap update. Font Height is 16
+00000660000i[XGUI ] charmap update. Font Height is 16
+00000922700i[BIOS ] ata0-0: PCHS=204/16/38 translation=none LCHS=204/16/38
+00004971613i[BIOS ] IDE time out
+00004998604i[BIOS ] Booting from 0000:7c00
+00006882000p[XGUI ] >>PANIC<< POWER button turned off.
+00006882000i[CPU  ] CPU is in real mode (active)
+00006882000i[CPU  ] CS.d_b = 16 bit
+00006882000i[CPU  ] SS.d_b = 16 bit
+00006882000i[CPU  ] | EAX=00001301  EBX=0000000c  ECX=00000014  EDX=00001004
+00006882000i[CPU  ] | ESP=0000ffdc  EBP=00000022  ESI=ffff0000  EDI=0008fdba
+00006882000i[CPU  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af pf cf
+00006882000i[CPU  ] | SEG selector     base    limit G D
+00006882000i[CPU  ] | SEG sltr(index|ti|rpl)     base    limit G D
+00006882000i[CPU  ] |  CS:07c0( 0004| 0|  0) 00007c00 0000ffff 0 0
+00006882000i[CPU  ] |  DS:07c0( 0005| 0|  0) 00007c00 0000ffff 0 0
+00006882000i[CPU  ] |  SS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00006882000i[CPU  ] |  ES:07c0( 0005| 0|  0) 00007c00 0000ffff 0 0
+00006882000i[CPU  ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00006882000i[CPU  ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00006882000i[CPU  ] | EIP=00000020 (00000020)
+00006882000i[CPU  ] | CR0=0x60000010 CR1=0 CR2=0x00000000
+00006882000i[CPU  ] | CR3=0x00000000 CR4=0x00000000
+00006882000i[CPU  ] >> jmp .+0xfffe (0x00007c20) : EBFE
+00006882000i[CMOS ] Last time is 1632043271 (Sun Sep 19 17:21:11 2021)
+00006882000i[XGUI ] Exit
+00006882000i[     ] restoring default signal behavior
+00006882000i[CTRL ] quit_sim called with exit code 1

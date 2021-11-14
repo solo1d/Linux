@@ -65,6 +65,7 @@ $pwd   #当前路径, print working directory ,
 
 ```bash
 $stat  文件名   #文件的信息, 类型, 属主, 是否可执行, 硬链接数, 最后一次访问或修改时间
+
 ```
 
 

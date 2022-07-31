@@ -763,6 +763,34 @@ $sh  -x show_animal.sh
 
 
 
+## 获取字符串第1个字符
+
+```bash
+str="/home/gateman"
+ if [ ${str:0:1} = "/"  ]; then
+    echo "yes'
+fi
+#  ${str:0:1｝ 中 
+#  0表示从第几个字符开始，1表示截取多长
+```
+
+
+
+## 使用for循环读取文件内容
+
+```bash
+for line in `cat filename`
+do
+ echo $line
+done
+
+#每次读取一行
+```
+
+
+
+
+
 ## 小结
 
 - shell script 是利用 shell 的功能所写的一个“程序 (program)”，这个程序是使用纯文本 文件，将一些 shell 的语法与指令(含外部指令)写在里面， 搭配正则表达式、管线命令与数据流重导向等功能，以达到我们所想要的处理目的

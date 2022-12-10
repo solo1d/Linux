@@ -1,0 +1,75 @@
+简介
+
+Debian GNU/Linux，是一个操作系统及自由软件的发行版，由一群自愿付出时间和精力的用户来维护并更新。它附带了超过 59000 个软件包，这些预先编译好的软件被打包成一种良好的格式以便于用户安装和使用。
+
+下载地址: https://mirrors.aliyun.com/debian/
+
+相关仓库
+
+Debian安装源（debian-cd）：https://developer.aliyun.com/mirror/debian-cd
+Debian安全更新源（debian-security）：https://developer.aliyun.com/mirror/debian-security
+Debian第三方多媒体软件源（debian-multimedia）：https://developer.aliyun.com/mirror/debian-multimedia
+Debian预发软件源（debian-backports）：https://developer.aliyun.com/mirror/debian-backports
+Debian其他架构移植源（debian-ports）：https://developer.aliyun.com/mirror/debian-ports
+Debian过期源（debian-archive)：https://developer.aliyun.com/mirror/debian-archive
+
+
+配置方法
+debian 7.x (wheezy)
+编辑/etc/apt/sources.list文件(需要使用sudo), 在文件最前面添加以下条目(操作前请做好相应备份)
+
+deb https://mirrors.aliyun.com/debian-archive/debian/ wheezy main non-free contrib
+deb https://mirrors.aliyun.com/debian-archive/debian/ wheezy-proposed-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian-archive/debian/ wheezy main non-free contrib
+deb-src https://mirrors.aliyun.com/debian-archive/debian/ wheezy-proposed-updates main non-free contrib
+
+
+debian 8.x (jessie)
+编辑/etc/apt/sources.list文件(需要使用sudo), 在文件最前面添加以下条目(操作前请做好相应备份)
+
+deb https://mirrors.aliyun.com/debian/ jessie main non-free contrib
+deb https://mirrors.aliyun.com/debian/ jessie-proposed-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ jessie main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ jessie-proposed-updates main non-free contrib
+debian 9.x (stretch)
+deb https://mirrors.aliyun.com/debian/ stretch main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ stretch main non-free contrib
+deb https://mirrors.aliyun.com/debian-security stretch/updates main
+deb-src https://mirrors.aliyun.com/debian-security stretch/updates main
+deb https://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib
+#deb https://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib
+#deb-src https://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib
+
+debian 10.x (buster)
+编辑/etc/apt/sources.list文件(需要使用sudo), 在文件最前面添加以下条目(操作前请做好相应备份)
+
+deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb https://mirrors.aliyun.com/debian-security buster/updates main
+deb-src https://mirrors.aliyun.com/debian-security buster/updates main
+deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+
+
+debian 11.x (bullseye)
+编辑/etc/apt/sources.list文件(需要使用sudo), 在文件最前面添加以下条目(操作前请做好相应备份)
+
+deb https://mirrors.aliyun.com/debian/ bullseye main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ bullseye main non-free contrib
+deb https://mirrors.aliyun.com/debian-security/ bullseye-security main
+deb-src https://mirrors.aliyun.com/debian-security/ bullseye-security main
+deb https://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
+
+
+相关链接
+官方主页: http://www.debian.org/
+邮件列表: http://www.debian.org/support#mail_lists
+Wiki: http://wiki.debian.org/
+文档: http://www.debian.org/doc/
+镜像列表: http://www.debian.org/mirror/list

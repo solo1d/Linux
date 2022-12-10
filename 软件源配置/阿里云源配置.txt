@@ -1,0 +1,9 @@
+修改 /etc/apt/sources.list , 将相关 url 改成阿里云的源。
+#deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
+#deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
+
+
+
+相关仓库
+
+Kali安装源（kali-images）：https://developer.aliyun.com/mirror/kali-images

@@ -725,6 +725,9 @@ $grep  [-acinv] [--color=auto] '搜寻字串'  filename
 -l   :只列出文件内拥有匹配条件的文件名, 并不显示具体的文件内容.
 -r   :递归搜寻，会深入所有目录下的文件进行搜索
 -R   :与 -r 作用相同
+
+ -A :后面可加数字，为 after 的意思，除了列出该行外，后续的 n 行也列出来;
+ -B :后面可加数字，为 befer 的意思，除了列出该行外，前面的 n 行也列出来;
 --color=auto   :可以将找到的关键字部分加上颜色的显示喔!
 
 范例一:将 last 当中，有出现 root 的那一行就取出来;
@@ -742,29 +745,37 @@ $ last | grep 'root' | cut -d ' ' -f1
 $ grep --color=auto 'MANPATH' /etc/man_db.conf
 ```
 
-###  排序命令:  sort , wc , uniq
+###  排序和去重命令:  sort , wc , uniq
 ##### sort
 ```bash
 $sort [-fbMnrtuk] [file or stdin]
+$sort [-bcdfimMnr][-o<输出文件>][-t<分隔字符>][+<起始栏位>-<结束栏位>][--help][--verison][文件]
+
 选项与参数:
  -f :忽略大小写的差异，例如 A 与 a 视为编码相同;
  -b :忽略最前面的空白字符部分;
  -M :以月份的名字来排序，例如 JAN, DEC 等等的排序方法;
  -n :使用“纯数字”进行排序(默认是以文字体态来排序的);
  -r :反向排序;
- -u :就是 uniq ，相同的数据中，仅出现一行代表;
+ -u :就是 uniq ，相同的数据中，仅出现一行代表, 相邻的重复行(会先排序，然后再去重)
  -t :分隔符号，默认是用 [tab] 键来分隔;
  -k :以那个区间 (field) 来进行排序的意思
  -h :按照文件大小进行排序（文件大小 , Mb 、Kb 都会区分开来)
+ -o :<输出文件>	将排序后的结果存入指定的文件。
+ -r	:以相反的顺序来排序。
+ -t :<分隔字符>	指定排序时所用的栏位分隔字符。
+ -k :<指定排序的列数>	指定要排序的列数，默认是从第一列开始比较，-k可指定某一列，也可与-t 结合使用时，代表某一栏
+  +<起始栏位>-<结束栏位> :以指定的栏位来排序，范围由起始栏位到结束栏位的前一栏位。
 默认是 "以第一个数据来进行排序的". 而且默认是以文字形态来排序的, 所以由 a 开始排序.
 
-范例一:个人帐号都记录在 /etc/passwd 下，请将帐号进行排序。
+
+# 范例一:个人帐号都记录在 /etc/passwd 下，请将帐号进行排序。
 $ cat /etc/passwd  | sort
  abrt:x:173:173::/etc/abrt:/sbin/nologin
  adm:x:3:4:adm:/var/adm:/sbin/nologin
  alex:x:1001:1002::/home/alex:/bin/bash
 
-范例二:/etc/passwd 内容是以 : 来分隔的，我想以第三栏来排序，该如何?
+# 范例二:/etc/passwd 内容是以 : 来分隔的，我想以第三栏来排序，该如何?
 $cat /etc/passwd  | sort -t ':'  -k 3 -n
 root:x:0:0:root:/root:/bin/bash
 bin:x:1:1:bin:/bin:/sbin/nologin
@@ -772,12 +783,33 @@ daemon:x:2:2:daemon:/sbin:/sbin/nologin
 adm:x:3:4:adm:/var/adm:/sbin/nologin
 
 
-范例三:利用 last ，将输出的数据仅取帐号，并加以排序
+# 范例三:利用 last ，将输出的数据仅取帐号，并加以排序
 $last | cut -d ' ' -f 1 | sort -u
 
-范例四:查看当前目录下所有文件的大小，并排序
+# 范例四:查看当前目录下所有文件的大小，并排序
 $du -sh * | sort -h
+
+
+# 范例五:按数值大小降序排列后，把结果再输出到原文件中 -o（直接用重定向做不到）
+$sort -nr num.txt -o num.txt
+
+# 范例六:使用sort的-t选项和-k选项，设置间隔符后再指定排序的列
+sort -t'-' -k2 dat.txt
+	# 其中-t'-' 是以 ‘-’ 为分隔符对每行内容分栏，然后-k 2 表示对分栏后的第二栏内容进行默认的升序排列。
+
+# 范例七: 使用sort -k指定以某一列排序
+$sort -k9 a.txt
+		#（基于a.txt的第九列来排序）
+		
+# 范例八: 对/etc/passwd以‘：’分隔，再以第六个域的第2个字符到第4个字符进行正向排序，再基于第一个域进行反向排序。
+cat /etc/passwd |  sort -t':' -k 6.2,6.4 -k 1r      
+		#sync:x:4:65534:sync:/bin:/bin/sync
+		#proxy:x:13:13:proxy:/bin:/bin/sh
+		#bin:x:2:2:bin:/bin:/bin/sh
+		#sys:x:3:3:sys:/dev:/bin/sh
 ```
+
+##### wc
 
 ```bash
 wc  [-lwm]  文件    #获得文件大小和行数
@@ -790,6 +822,19 @@ wc  [-lwm]  文件    #获得文件大小和行数
  #获得文件大小
 $ wc -c fileName.txt
 ```
+
+##### uniq
+
+```bash
+uniq 命令用于去重文件内容中的连续重复行，通常要跟sort一起使用，先利用sort排序，然后用uniq去重。
+uniq 命令与sort命令类似，并不对文件内容进行实际的排序(即文件内容没有修改)，只是在输出内容中去重。
+
+因为uniq只能去除相邻的重复行，所以要跟sort合并使用，先用sort排序，再用uniq去重sort 1.txt | uniq。
+
+$uniq -c ：显示每一行重复的次数
+```
+
+
 
 
 

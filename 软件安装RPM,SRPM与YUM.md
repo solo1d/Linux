@@ -99,6 +99,10 @@ $rpm  -ivh  /mnt/Packages/rp-pppoe-3.11-5.el7.x86_64.rpm
 范例 : 直接由网络上面某个文件安装,也就是网址(下载链接)
 $rpm  -ivh  http://website.name/path/pkgname.rpm
 
+范例 : 从rpm包进行安装。
+$rpm -Uvh   xxx.rpm
+
+
 范例:  假设我不小心删除了 /etc/crontab 这个目录,也不知道它属于哪个软件, 怎么恢复.
 $rpm -qf /etc/crontab      #这样就知道 crontab 目录是属于哪个软件的了, 然后将这个软件重新一次即可
 $重装该软件
@@ -293,7 +297,6 @@ $rpmbuild   —recompile   SRPM文件.src.rpm      #编译,打包,并生成可�
 - SRPM 为 Source RPM ， 内含的文件为 Source code 而非为 binary file ， 所以安装SRPM 时还需要经过 compile ， 不过， SRPM 最大的优点就是可以让使用者自行修改设置参数 （ makefile/configure 的参数） ， 以符合使用者自己的 Linux 环境；
 - RPM 软件的属性相依问题， 已经可以借由 yum 或者是 APT 等方式加以克服。 CentOS使用的就是 yum 机制。
 - yum 服务器提供多个不同的软件库放置个别的软件， 以提供用户端分别管理软件类别。
-
 
 
 

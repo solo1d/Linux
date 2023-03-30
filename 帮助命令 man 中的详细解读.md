@@ -11,3 +11,18 @@
     SEE ALSO    :可以参考的, 跟这个指令或数据有相关的其他说明.
     EXAMPLE     :一些可以参考的范例.
 ```
+
+### man 命令错误 an: preconv: Bad system call 的解决方法
+
+```
+man: preconv: Bad system call
+man: tbl: Bad system call
+Manual page man(1) line ?/? (END) (press h for help or q to quit)man: nroff: Bad system call
+```
+
+```bash
+可以设置一个环境变量 MAN_DISABLE_SECCOMP  到 .bashrc 和  .bash_profile 中
+
+export MAN_DISABLE_SECCOMP=1
+```
+

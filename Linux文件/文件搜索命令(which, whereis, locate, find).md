@@ -84,6 +84,13 @@ $which  后面跟在 PATH 变量中的程序名. Bash内置的指令是搜寻不
 # 搜索24小时之前的文件  (24*60=1440分钟) ，并删除
 find ./  -mmin +1440 -type f  -exec rm -rf {} \;
 
+
+# 搜索当前目录，并删除所有的空目录 (因为 rmdir 无法删除非空的目录,可以变相使用）
+ find ./* -type d -exec rmdir {} \;
+ 
+ 
+# 删除当前目录下所有的空文件
+	find ./* -type f  -size 0  -exec rm  -r {} \;
 ```
 
 

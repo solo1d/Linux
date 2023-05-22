@@ -59,7 +59,7 @@
 - **网络设备**
   
   - 网络设备驱动         (没有设备文件的)
-  - 网络设备时一类特殊的设备, 不像字符设备或块设备那样通过对应的设备文件访问,也不能直接通过 read 或 write 进行数据请求,  而是通过 socket 接口函数进行访问.
+  - 网络设备是一类特殊的设备, 不像字符设备或块设备那样通过对应的设备文件访问,也不能直接通过 read 或 write 进行数据请求,  而是通过 socket 接口函数进行访问.
   - eg(例如); 网卡..
   
   **设备文件: 字符设备和块设备有设备文件, 网络设备没有设备文件(使用socket通信).**
@@ -94,18 +94,20 @@
       #include <linux/init.h>
       #include <linux/module.h>
       
-      int __init  demo_init(void){
-              printk("init--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
+      static int __init  demo_init(void){
+              printk(KERN_ALERT "init--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
               return 0;
       }
       
-      void __exit demo_exit(void){
-              printk("exit--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
+      static void __exit demo_exit(void){
+              printk(KERN_ALERT "exit--%s--%s---%d---\n",__FILE__,__func__,__LINE__);
       }
       
       module_init(demo_init);
       module_exit(demo_exit);
       MODULE_LICENSE("GPL");
+      MODULE_AUTHOR("my_name"); // 代码的作者
+      MODULE_DESCRIPTION("A Hello. World Module");  //模块的简要说明
       ```
 
 - **驱动模块编译**
@@ -569,6 +571,7 @@ PWD := $(shell pwd)
 KDIR := /lib/modules/`uname -r`/build
 all:
 	make -C $(KDIR) M=$(PWD)
+	#  -C 代表进入到内核目录里面去 并执行内核的 Makefile , 执行
 clean:
 	rm -rf *.o *.ko *.mkd.c *.symvers *.c~ *~
 endif

@@ -816,6 +816,7 @@ UUID=670c24ae-e100-445   /boot          xfs     defaults                     0 0
 UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
 /dev/mapper/centos-home  /home          xfs     defaults                     0 0
 /dev/mapper/centos-swap  swap           swap    defaults                     0 0
+10.1.1.3:/nfs-data/log		/home/ns/log	nfs			defaults                     0 0
 ```
 
 * 配置文件 **`/etc/fstab`** 详解:
@@ -833,6 +834,8 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
   * **第六栏: 是否以 fsck 检验扇区.**
     * xfs文件系统无法使用这个选项. 直接给0就好
 * **当修改完配置文件后,尽量使用  `$mount -a`  来进行一次自动挂载. 然后查看是否挂载正确\(`$blkid`\).才可以使用这个配置文件.**
+
+**第七条是挂载网络nfs格式硬盘的配置，需要保证该盘必须时时在线，不然会出现问题。**
 
 **当配置完成后, 开机就可以实现自动挂载了, 也可以进行 $mount -a 进行自动挂载\(配置文件\).**
 

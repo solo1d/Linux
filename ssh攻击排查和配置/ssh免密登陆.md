@@ -39,7 +39,8 @@ $touch  ~/.ssh/config    #建立这个文件.
 
 #在这个文件内添加如下内容: 
 # pi : raspberry
-Host pi            
+Host pi
+		User pi
     HostName 10.0.0.1
     PreferredAuthentications publickey
     IdentityFile ~/.ssh/pi

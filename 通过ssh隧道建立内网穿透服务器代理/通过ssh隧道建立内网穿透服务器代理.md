@@ -74,7 +74,7 @@ Host  ois
 # 通过访问 12.12.12.10 的8080 端口，就可以间接的访问到 内网服务器的 80 端口。
 	# 8080 前面的 : 这个代表全ip网段都可以访问，如果不配置，那么只能本地访问
 
-$ ssh -o ServerAliveInterval=5 -o ServerAliveCountMax=1 -R :8080:localhost:80  -T  -N  ois@12.12.12.10 -p 12345
+$ ssh -o ServerAliveInterval=5 -o ServerAliveCountMax=1 -R *:8080:localhost:80  -T  -N  ois@12.12.12.10 -p 12345
 
 # 参数说明
 # -R  代表远程转发
@@ -134,7 +134,7 @@ set_service(){
 
   if [  $? -eq  0 ] ; then
       #启动
-      nohup ssh   -o ServerAliveInterval=5 -o ServerAliveCountMax=1  -R :${remotePort}:localhost:${localProt}  -T  -N  ${SERVER_USER} >/dev/null  2>&1 &
+      nohup ssh   -o ServerAliveInterval=5 -o ServerAliveCountMax=1  -R *:${remotePort}:localhost:${localProt}  -T  -N  ${SERVER_USER} >/dev/null  2>&1 &
   fi
 }
 

@@ -95,7 +95,8 @@ $ ssh -o ServerAliveInterval=5 -o ServerAliveCountMax=1 -R *:8080:localhost:80  
 #nohup 进入后台,当前用户推出登录后 也会执行
 
 #工作目录
-cd  /home/pi
+cur_path=$(cd "$(dirname "$0")"; pwd)
+cd $cur_path
 
 SERVER_USER="ois"
 
@@ -239,8 +240,9 @@ fi
 ```bash
 #!/bin/bash
 
-#工作目录
-cd  /home/ois/sshRemote
+#工作目录 sshRemote
+cur_path=$(cd "$(dirname "$0")"; pwd)
+cd $cur_path
 
 # 服务开启失败的端口列表文件
 ServerPortFailFile="sshRemotePortFailList.txt"

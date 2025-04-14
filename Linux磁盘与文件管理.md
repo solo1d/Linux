@@ -816,7 +816,7 @@ UUID=670c24ae-e100-445   /boot          xfs     defaults                     0 0
 UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
 /dev/mapper/centos-home  /home          xfs     defaults                     0 0
 /dev/mapper/centos-swap  swap           swap    defaults                     0 0
-10.1.1.3:/nfs-data/log		/home/ns/log	nfs			defaults                     0 0
+10.1.1.3:/nfs-data/log		/home/ns/log	nfs			defaults,nofail              0 0
 ```
 
 * 配置文件 **`/etc/fstab`** 详解:
@@ -828,7 +828,8 @@ UUID=7AD0-C59C           /boot/efi      vfat    umask=0077,shortname=winnt   0 0
     * 包括xfs, ext4, vfat, reiserfs , nfs 等
   * **第四栏: 文件系统参数** 
     *  具体的设置在 **`$mount 命令的 -o`** 选项中, 中间用逗号区分就行
-    * 默认给  **`defaults`** 即可
+    * 默认给  **`defaults`** 即可， 但是要保证这个设备不会出现问题，否则会导致无法卡机
+    * `nofail` 参数会在该设备出现问题的时候进行跳过，而不会影响开机
   * **第五栏: 能否被 dump 备份指令作用.** 
     * 目前没什么用, 直接给0 忽略就好.
   * **第六栏: 是否以 fsck 检验扇区.**

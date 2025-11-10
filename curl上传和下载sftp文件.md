@@ -13,6 +13,10 @@ curl -k -u sftpuser:password -P 22  -T /home/user/本地文件   sftp://目标�
 # -o 后面是下载到本地的文件
 curl -k -u sftpuser:password -P 22 -o  /home/user/本地文件   sftp://目标服务器IP/远程路径 
 
+# 如果是上传文件夹的话，需要保持远程目录，添加参数 --create-dirs
+# -sS  静默模式（仅显示错误）
+curl -k -u sftpuser:password -P 22   \
+		-T /home/user/本地文件 --create-dirs -sS   sftp://目标服务器IP/远程路径/需要构建的目录/
 
 ```
 
